@@ -35,13 +35,14 @@ st.markdown("""
     code {
         white-space: pre-wrap !important; 
         word-break: break-all !important;
-        background-color: #ffffff !important; /* Warna putih */
-        color: #000000 !important;           /* Warna hitam */
+        background-color: **#FFFFFF** !important; 
+        color: **#000000** !important;
         display: block;
         padding: 15px !important;
         border-radius: 10px;
         border: 1px solid #d1d3d8 !important;
         font-weight: bold;
+        ***-webkit-text-fill-color: #000000 !important;***
     }
     
     /* Gaya Tombol Proses */
@@ -125,6 +126,7 @@ elif tombol_proses and not input_bbfs:
     st.error("Masukkan angkanya dulu, Koh!")
 
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
+
 
 
 
