@@ -92,7 +92,11 @@ if tombol_proses and input_bbfs:
         st.subheader(f"📊 HASIL {label}")
         
         st.success(f"✅ {label} UTAMA (ACAK) - {len(acak)} Line")
-        st.code("*".join(acak))
+        # --- BAGIAN REVISI: POTONG TIAP 300 ---
+        if acak:
+            for i in range(0, len(acak), 300):
+                st.code("*".join(acak[i:i+300]))
+        # -------------------------------------
         
         col_res1, col_res2 = st.columns(2)
         with col_res1:
@@ -118,3 +122,4 @@ elif tombol_proses and not input_bbfs:
     st.error("Masukkan angkanya dulu, Koh!")
 
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
+
