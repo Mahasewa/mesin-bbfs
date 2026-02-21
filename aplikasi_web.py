@@ -43,19 +43,19 @@ st.markdown("""
     footer {visibility: hidden;}
     header {visibility: hidden;}
     
-    /* JURUS PAKSA HITAM PEKAT */
+    /* Kotak angka: Latar Putih, Tulisan Hitam */
     code {
         white-space: pre-wrap !important; 
         word-break: break-all !important;
-        background-color: #ffffff !important; 
-        color: #000000 !important;
+        background-color: #ffffff !important; /* PUTIH BERSIH */
+        color: #000000 !important;           /* HITAM PEKAT */
         -webkit-text-fill-color: #000000 !important;
-        filter: brightness(0) !important;
+        
         display: block;
         padding: 15px !important;
         border-radius: 10px;
-        border: 2px solid #000000 !important;
-        font-weight: 900 !important;
+        border: 2px solid #000000 !important; /* Garis kotak hitam */
+        font-weight: bold !important;
         font-size: 1.1rem !important;
     }
     
@@ -139,3 +139,4 @@ elif tombol_proses and not input_bbfs:
     st.error("Isi angkanya dulu Koh!")
 
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
+
