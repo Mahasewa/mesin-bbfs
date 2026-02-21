@@ -3,8 +3,49 @@ import re
 import requests
 import itertools
 from itertools import permutations
+# --- TAMBAHKAN INI ---
+from bs4 import BeautifulSoup
+import datetime
+import os
+import base64
+import json
+
 
 # --- LOGIKA MESIN ---
+def update_dan_tata_kolom(pasaran, angka_baru):
+    filename = f"data_keluaran_{pasaran.lower()}.txt"
+    
+    # Baca file jika ada
+    if os.path.exists(filename):
+        with open(filename, "r") as f:
+            lines = f.readlines()
+    else:
+        lines = []
+
+    # Cek data terakhir agar tidak double
+    baris_terakhir = lines[-1].strip().split() if lines else []
+    if baris_terakhir and baris_terakhir[-1] == angka_baru:
+        return False
+
+    # Logika 7 Kolom
+    if not lines or len(baris_terakhir) >= 7:
+        with open(filename, "a") as f:
+            f.write(f"\n{angka_baru}")
+    else:
+        # Tambah ke samping dengan jarak 4 spasi
+        lines[-1] = lines[-1].rstrip() + f"    {angka_baru}\n"
+        with open(filename, "w") as f:
+            f.writelines(lines)
+    return True
+
+def get_live_result():
+    # Contoh untuk HK (Anda perlu menyesuaikan selector HTML-nya nanti)
+    try:
+        # Robot mengintip web
+        res = requests.get("https://www.hongkongpools.com", timeout=10)
+        # Logika scraping di sini... (kita sempurnakan setelah ini)
+    except:
+        pass
 def is_berurutan(angka):
     try:
         n = [int(d) for d in angka]
@@ -203,6 +244,15 @@ elif tombol_proses and not input_bbfs:
     st.error("Isi angkanya dulu Koh!")
 
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
+
+# --- LOGIKA JAM OTOMATIS ---
+jam_sekarang = datetime.datetime.now().strftime("%H:%M")
+
+# Contoh Jadwal HK (23:02 - 23:15)
+if "23:02" <= jam_sekarang <= "23:15":
+    # Jalankan fungsi ambil data
+    # Jika berhasil dan data baru, simpan ke GitHub pakai Token
+    pass
 
 
 
