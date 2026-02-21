@@ -53,8 +53,11 @@ st.markdown("""
         
         display: block;
         padding: 20px !important;
-        border: none !important;            /* HAPUS GARIS PINGGIR */
-        box-shadow: none !important;        /* HAPUS BAYANGAN */
+       /* SOLUSI BIAR GAK TUMPANG TINDIH */
+        line-height: 2.0 !important;      /* Kasih jarak baris yang lega */
+        overflow: visible !important;     /* Biar teks gak kepotong garis */
+        
+        border: 1px solid #eeeeee !important; 
         font-weight: bold !important;
         font-size: 1.1rem !important;
     }
@@ -139,5 +142,6 @@ elif tombol_proses and not input_bbfs:
     st.error("Isi angkanya dulu Koh!")
 
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
+
 
 
