@@ -1,4 +1,4 @@
 streamlit
 requests
-beatifulsoup4
+beautifulsoup4
 pandas
