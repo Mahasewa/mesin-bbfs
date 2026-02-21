@@ -243,16 +243,46 @@ if tombol_proses and input_bbfs:
 elif tombol_proses and not input_bbfs:
     st.error("Isi angkanya dulu Koh!")
 
-st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
 
-# --- LOGIKA JAM OTOMATIS ---
+# ==========================================
+# LOGIKA UPDATE OTOMATIS BERDASARKAN JAM
+# ==========================================
 jam_sekarang = datetime.datetime.now().strftime("%H:%M")
 
-# Contoh Jadwal HK (23:02 - 23:15)
+# 1. Update Otomatis SDY (Jam 14:02 - 14:15)
+if "14:02" <= jam_sekarang <= "14:15":
+    try:
+        r = requests.get("https://sydneypoolstoday.com/live.html", timeout=10)
+        soup = BeautifulSoup(r.text, 'html.parser')
+        angka_6d = soup.find("div", {"id": "p1_res"}).text.strip()
+        update_dan_tata_kolom("SDY", angka_6d[-4:])
+    except:
+        pass
+
+# 2. Update Otomatis SGP (Jam 17:47 - 18:00)
+if "17:47" <= jam_sekarang <= "18:00":
+    try:
+        r = requests.get("https://4dno.org/singapore", timeout=10)
+        soup = BeautifulSoup(r.text, 'html.parser')
+        angka_4d = soup.find("td", {"class": "result4d"}).text.strip()
+        update_dan_tata_kolom("SGP", angka_4d)
+    except:
+        pass
+
+# 3. Update Otomatis HK (Jam 23:02 - 23:15)
 if "23:02" <= jam_sekarang <= "23:15":
-    # Jalankan fungsi ambil data
-    # Jika berhasil dan data baru, simpan ke GitHub pakai Token
-    pass
+    try:
+        r = requests.get("https://www.hongkongpools.com/live.html", timeout=10)
+        soup = BeautifulSoup(r.text, 'html.parser')
+        angka_6d = soup.find("div", {"id": "p1_res"}).text.strip()
+        update_dan_tata_kolom("HK", angka_6d[-4:])
+    except:
+        pass
+# ==========================================
+st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
+
+
+
 
 
 
