@@ -157,6 +157,7 @@ file_map = {"Hong Kong (HK)": "data_keluaran_hk.txt", "Sydney (SDY)": "data_kelu
 URL_DATA = f"https://raw.githubusercontent.com/Mahasewa/mesin-bbfs/main/{file_map[pasaran_pilih]}"
 try:
     respon = requests.get(URL_DATA)
-    data_ada = set(re.findall(r'\b\d{4}\b', respon.text
+    data_ada = set(re.findall(r'\b\d{4}\b', respon.text))
+
 
 
