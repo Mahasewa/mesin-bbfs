@@ -21,16 +21,15 @@ def get_kombinasi(input_digits, digit_count, data_ada):
     panas = [a for a in hasil_raw if any(a in d for d in data_ada)]
     return acak, berurutan, panas
 
-def get_kembar(input_digits, tipe):
-    # tipe 2 = Twin, 3 = Triple, 4 = Quad
-    # Menghasilkan kombinasi 4 digit dengan pengulangan
+def get_kembar_strict(input_digits, tipe):
     hasil_raw = ["".join(p) for p in itertools.product(input_digits, repeat=4)]
     final = []
     for h in hasil_raw:
         counts = [h.count(d) for d in set(h)]
-        if tipe == 2 and any(c >= 2 for c in counts): final.append(h)
-        elif tipe == 3 and any(c >= 3 for c in counts): final.append(h)
-        elif tipe == 4 and any(c >= 4 for c in counts): final.append(h)
+        max_c = max(counts)
+        if tipe == 2 and max_c == 2: final.append(h) # Twin Murni
+        elif tipe == 3 and max_c == 3: final.append(h) # Triple Murni
+        elif tipe == 4 and max_c == 4: final.append(h) # Quad Murni
     return sorted(list(set(final)))
 
 # --- TAMPILAN WEB ---
@@ -143,29 +142,30 @@ if tombol_proses and input_bbfs:
         if b2: st.warning(f"⚠️ BERURUTAN (2D): {', '.join(b2)}")
         if p2: st.error(f"🔥 DATA PANAS (2D): {', '.join(p2)}")
     
-    # 4. Proses Kembar dengan Cek Data Panas
+   # 4. Proses Kembar (Strict) & Cek Data Panas
     if show_twin:
-        res_twin = get_kembar(input_bbfs, 2)
-        panas_twin = [a for a in res_twin if a in data_ada] # Cek ke arsip
-        cetak_hasil_blok("TWIN 4D", res_twin)
-        if panas_twin: st.error(f"🔥 DATA PANAS TWIN: {', '.join(panas_twin)}")
+        res_twin = get_kembar_strict(input_bbfs, 2)
+        p_twin = [a for a in res_twin if a in data_ada]
+        cetak_hasil_blok("TWIN 4D (MURNI)", res_twin)
+        if p_twin: st.error(f"🔥 DATA PANAS TWIN: {', '.join(p_twin)}")
 
     if show_triple:
-        res_trip = get_kembar(input_bbfs, 3)
-        panas_trip = [a for a in res_trip if a in data_ada] # Cek ke arsip
-        cetak_hasil_blok("TRIPLE 4D", res_trip)
-        if panas_trip: st.error(f"🔥 DATA PANAS TRIPLE: {', '.join(panas_trip)}")
+        res_trip = get_kembar_strict(input_bbfs, 3)
+        p_trip = [a for a in res_trip if a in data_ada]
+        cetak_hasil_blok("TRIPLE 4D (MURNI)", res_trip)
+        if p_trip: st.error(f"🔥 DATA PANAS TRIPLE: {', '.join(p_trip)}")
 
     if show_quad:
-        res_quad = get_kembar(input_bbfs, 4)
-        panas_quad = [a for a in res_quad if a in data_ada] # Cek ke arsip
-        cetak_hasil_blok("QUAD 4D", res_quad)
-        if panas_quad: st.error(f"🔥 DATA PANAS QUAD: {', '.join(panas_quad)}")
+        res_quad = get_kembar_strict(input_bbfs, 4)
+        p_quad = [a for a in res_quad if a in data_ada]
+        cetak_hasil_blok("QUAD 4D (MURNI)", res_quad)
+        if p_quad: st.error(f"🔥 DATA PANAS QUAD: {', '.join(p_quad)}")
 
 elif tombol_proses and not input_bbfs:
     st.error("Isi angkanya dulu Koh!")
 
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
+
 
 
 
