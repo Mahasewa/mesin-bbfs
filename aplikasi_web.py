@@ -143,18 +143,30 @@ if tombol_proses and input_bbfs:
         if b2: st.warning(f"⚠️ BERURUTAN (2D): {', '.join(b2)}")
         if p2: st.error(f"🔥 DATA PANAS (2D): {', '.join(p2)}")
     
-    # 4. Proses Kembar
+    # 4. Proses Kembar dengan Cek Data Panas
     if show_twin:
-        cetak_hasil_blok("TWIN 4D", get_kembar(input_bbfs, 2))
+        res_twin = get_kembar(input_bbfs, 2)
+        panas_twin = [a for a in res_twin if a in data_ada] # Cek ke arsip
+        cetak_hasil_blok("TWIN 4D", res_twin)
+        if panas_twin: st.error(f"🔥 DATA PANAS TWIN: {', '.join(panas_twin)}")
+
     if show_triple:
-        cetak_hasil_blok("TRIPLE 4D", get_kembar(input_bbfs, 3))
+        res_trip = get_kembar(input_bbfs, 3)
+        panas_trip = [a for a in res_trip if a in data_ada] # Cek ke arsip
+        cetak_hasil_blok("TRIPLE 4D", res_trip)
+        if panas_trip: st.error(f"🔥 DATA PANAS TRIPLE: {', '.join(panas_trip)}")
+
     if show_quad:
-        cetak_hasil_blok("QUAD 4D", get_kembar(input_bbfs, 4))
+        res_quad = get_kembar(input_bbfs, 4)
+        panas_quad = [a for a in res_quad if a in data_ada] # Cek ke arsip
+        cetak_hasil_blok("QUAD 4D", res_quad)
+        if panas_quad: st.error(f"🔥 DATA PANAS QUAD: {', '.join(panas_quad)}")
 
 elif tombol_proses and not input_bbfs:
     st.error("Isi angkanya dulu Koh!")
 
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
+
 
 
 
