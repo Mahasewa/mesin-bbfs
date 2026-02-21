@@ -1,6 +1,7 @@
 import streamlit as st
 import re
 import requests
+import itertools
 from itertools import permutations
 
 # --- LOGIKA MESIN ---
@@ -17,48 +18,61 @@ def get_kombinasi(input_digits, digit_count, data_ada):
     hasil_raw = sorted(list(set("".join(p) for p in permutations(input_digits, digit_count))))
     acak = [a for a in hasil_raw if not is_berurutan(a)]
     berurutan = [a for a in hasil_raw if is_berurutan(a)]
-    # Cek apakah angka (atau bagian dari angka) ada di database
     panas = [a for a in hasil_raw if any(a in d for d in data_ada)]
     return acak, berurutan, panas
+
+def get_kembar(input_digits, tipe):
+    # tipe 2 = Twin, 3 = Triple, 4 = Quad
+    # Menghasilkan kombinasi 4 digit dengan pengulangan
+    hasil_raw = ["".join(p) for p in itertools.product(input_digits, repeat=4)]
+    final = []
+    for h in hasil_raw:
+        counts = [h.count(d) for d in set(h)]
+        if tipe == 2 and any(c >= 2 for c in counts): final.append(h)
+        elif tipe == 3 and any(c >= 3 for c in counts): final.append(h)
+        elif tipe == 4 and any(c >= 4 for c in counts): final.append(h)
+    return sorted(list(set(final)))
 
 # --- TAMPILAN WEB ---
 st.set_page_config(page_title="Mahasewa BBFS Pro", layout="wide")
 
-# CSS MAGIC: Agar tulisan otomatis turun ke bawah (wrap) dan tombol jadi cantik
+# CSS KHUSUS: PAKSA HITAM & PUTIH
 st.markdown("""
     <style>
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
     
-    /* Agar hasil angka tidak memanjang ke samping tapi turun ke bawah */
+    /* JURUS PAKSA HITAM PEKAT */
     code {
         white-space: pre-wrap !important; 
         word-break: break-all !important;
-        background-color: **#FFFFFF** !important; 
-        color: **#000000** !important;
+        background-color: #ffffff !important; 
+        color: #000000 !important;
+        -webkit-text-fill-color: #000000 !important;
+        filter: brightness(0) !important;
         display: block;
         padding: 15px !important;
         border-radius: 10px;
-        border: 1px solid #d1d3d8 !important;
-        font-weight: bold;
-        ***-webkit-text-fill-color: #000000 !important;***
+        border: 2px solid #000000 !important;
+        font-weight: 900 !important;
+        font-size: 1.1rem !important;
     }
     
-    /* Gaya Tombol Proses */
+    /* Tombol Proses */
     div.stButton > button {
         width: 100%;
-        background: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
+        background: linear-gradient(to right, #FF4B2B, #FF416C);
         color: white;
         font-weight: bold;
-        border: none;
         padding: 15px;
         border-radius: 10px;
+        border: none;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# --- HEADER ---
+# --- HEADER LOGO ---
 col_logo1, col_logo2, col_logo3 = st.columns([1, 2, 1])
 with col_logo2:
     logo_url = "https://raw.githubusercontent.com/Mahasewa/mesin-bbfs/main/logo_mahasewa.png"
@@ -70,63 +84,58 @@ st.divider()
 # --- INPUT AREA ---
 pasaran = st.selectbox("🎯 Pilih Pasaran:", ("Hong Kong (HK)", "Sydney (SDY)", "Singapore (SGP)"))
 
-col_chk1, col_chk2, col_chk3 = st.columns(3)
-show_4d = col_chk1.checkbox("Mode 4D", value=True)
-show_3d = col_chk2.checkbox("Mode 3D", value=False)
-show_2d = col_chk3.checkbox("Mode 2D", value=False)
+st.write("🔍 **Opsi Mode Utama:**")
+c1, c2, c3 = st.columns(3)
+show_4d = c1.checkbox("Mode 4D", value=True)
+show_3d = c2.checkbox("Mode 3D", value=False)
+show_2d = c3.checkbox("Mode 2D", value=False)
 
-input_bbfs = st.text_input("🎲 Masukkan Angka (0-9):", placeholder="Contoh: 12345", max_chars=10)
+st.write("👯 **Opsi Angka Kembar:**")
+k1, k2, k3 = st.columns(3)
+show_twin = k1.checkbox("Twin (4D)", value=False)
+show_triple = k2.checkbox("Triple (4D)", value=False)
+show_quad = k3.checkbox("Quad (4D)", value=False)
 
-# TOMBOL PROSES (Sesuai gambar)
+input_bbfs = st.text_input("🎲 Masukkan Angka BBFS:", placeholder="Contoh: 12345", max_chars=10)
 tombol_proses = st.button("🚀 PROSES SEKARANG")
 
-# --- PROSES DATA ---
+# --- AMBIL DATA ---
 file_map = {"Hong Kong (HK)": "data_keluaran_hk.txt", "Sydney (SDY)": "data_keluaran_sdy.txt", "Singapore (SGP)": "data_keluaran_sgp.txt"}
 URL_DATA = f"https://raw.githubusercontent.com/Mahasewa/mesin-bbfs/main/{file_map[pasaran]}"
-
 try:
     respon = requests.get(URL_DATA)
     data_ada = set(re.findall(r'\b\d{4}\b', respon.text)) if respon.status_code == 200 else set()
 except:
     data_ada = set()
 
-# Jalankan hanya jika tombol diklik
+# --- EKSEKUSI ---
 if tombol_proses and input_bbfs:
-    def cetak_hasil(label, acak, berurutan, panas):
-        st.subheader(f"📊 HASIL {label}")
-        
-        st.success(f"✅ {label} UTAMA (ACAK) - {len(acak)} Line")
-        # --- BAGIAN REVISI: POTONG TIAP 300 ---
-        if acak:
-            for i in range(0, len(acak), 300):
-                st.code("*".join(acak[i:i+300]))
-        # -------------------------------------
-        
-        col_res1, col_res2 = st.columns(2)
-        with col_res1:
-            st.warning(f"⚠️ BERURUTAN ({len(berurutan)})")
-            if berurutan: st.code("*".join(berurutan))
-        with col_res2:
-            st.error(f"🔥 DATA PANAS ({len(panas)})")
-            if panas: st.code("*".join(panas))
-        st.divider()
+    def cetak_hasil_blok(label, daftar_angka):
+        if daftar_angka:
+            st.subheader(f"📊 HASIL {label} ({len(daftar_angka)} Line)")
+            for i in range(0, len(daftar_angka), 300):
+                st.code("*".join(daftar_angka[i:i+300]))
 
+    # Proses BBFS Murni
     if show_4d:
         a4, b4, p4 = get_kombinasi(input_bbfs, 4, data_ada)
-        cetak_hasil("4D", a4, b4, p4)
-    
+        cetak_hasil_blok("4D UTAMA", a4)
     if show_3d:
         a3, b3, p3 = get_kombinasi(input_bbfs, 3, data_ada)
-        cetak_hasil("3D", a3, b3, p3)
-        
+        cetak_hasil_blok("3D UTAMA", a3)
     if show_2d:
         a2, b2, p2 = get_kombinasi(input_bbfs, 2, data_ada)
-        cetak_hasil("2D", a2, b2, p2)
+        cetak_hasil_blok("2D UTAMA", a2)
+    
+    # Proses Kembar
+    if show_twin:
+        cetak_hasil_blok("TWIN 4D", get_kembar(input_bbfs, 2))
+    if show_triple:
+        cetak_hasil_blok("TRIPLE 4D", get_kembar(input_bbfs, 3))
+    if show_quad:
+        cetak_hasil_blok("QUAD 4D", get_kembar(input_bbfs, 4))
+
 elif tombol_proses and not input_bbfs:
-    st.error("Masukkan angkanya dulu, Koh!")
+    st.error("Isi angkanya dulu Koh!")
 
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
-
-
-
-
