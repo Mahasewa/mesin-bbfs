@@ -158,6 +158,8 @@ URL_DATA = f"https://raw.githubusercontent.com/Mahasewa/mesin-bbfs/main/{file_ma
 try:
     respon = requests.get(URL_DATA)
     data_ada = set(re.findall(r'\b\d{4}\b', respon.text))
+    except:
+        data_ada = set()
 
 
 # --- JAM OTOMATIS SDY, SGP, HK ---
@@ -187,4 +189,5 @@ try:
 except:
     pass
 # --------------------------------
+
 
