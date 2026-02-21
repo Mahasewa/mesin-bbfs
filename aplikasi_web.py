@@ -31,7 +31,21 @@ def get_kembar_strict(input_digits, tipe):
         elif tipe == 3 and max_c == 3: final.append(h) # Triple Murni
         elif tipe == 4 and max_c == 4: final.append(h) # Quad Murni
     return sorted(list(set(final)))
-
+def kelompokkan_twin(daftar_angka):
+    kelompok = {}
+    for angka in daftar_angka:
+        # Logika menentukan pola (A, B, C)
+        mapping = {}
+        pola = ""
+        for char in angka:
+            if char not in mapping:
+                mapping[char] = chr(65 + len(mapping)) # Jadi A, B, atau C
+            pola += mapping[char]
+        
+        if pola not in kelompok:
+            kelompok[pola] = []
+        kelompok[pola].append(angka)
+    return kelompok
 # --- TAMPILAN WEB ---
 st.set_page_config(page_title="Mahasewa BBFS Pro", layout="wide")
 
@@ -145,9 +159,21 @@ if tombol_proses and input_bbfs:
    # 4. Proses Kembar (Strict) & Cek Data Panas
     if show_twin:
         res_twin = get_kembar_strict(input_bbfs, 2)
-        p_twin = [a for a in res_twin if a in data_ada]
-        cetak_hasil_blok("TWIN 4D (MURNI)", res_twin)
-        if p_twin: st.error(f"🔥 DATA PANAS TWIN: {', '.join(p_twin)}")
+        if res_twin:
+            st.subheader(f"📊 TOTAL TWIN 4D ({len(res_twin)} Line)")
+            
+            # Kita kelompokkan dulu
+            data_kelompok = kelompokkan_twin(res_twin)
+            
+            # Tampilkan per pola
+            for pola, daftar in data_kelompok.items():
+                with st.expander(f"🔹 POLA {pola} ({len(daftar)} Line)"):
+                    st.code("*".join(daftar))
+                    
+                    # Cek Data Panas per pola ini
+                    p_twin = [a for a in daftar if a in data_ada]
+                    if p_twin:
+                        st.error(f"🔥 DATA PANAS DI POLA {pola}: {', '.join(p_twin)}")
 
     if show_triple:
         res_trip = get_kembar_strict(input_bbfs, 3)
@@ -165,6 +191,7 @@ elif tombol_proses and not input_bbfs:
     st.error("Isi angkanya dulu Koh!")
 
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
+
 
 
 
