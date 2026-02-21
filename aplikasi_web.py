@@ -156,10 +156,13 @@ tombol_proses = st.button("🚀 PROSES SEKARANG")
 file_map = {"Hong Kong (HK)": "data_keluaran_hk.txt", "Sydney (SDY)": "data_keluaran_sdy.txt", "Singapore (SGP)": "data_keluaran_sgp.txt"}
 URL_DATA = f"https://raw.githubusercontent.com/Mahasewa/mesin-bbfs/main/{file_map[pasaran_pilih]}"
 try:
-    respon = requests.get(URL_DATA)
-    data_ada = set(re.findall(r'\b\d{4}\b', respon.text))
-    except:
-        data_ada = set()
+            respon = requests.get(URL_DATA)
+            data_ada = set(re.findall(r'\b\d{4}\b', respon.text))
+        except:
+            data_ada = set()
+
+# --- BAGIAN PALING BAWAH (JANGAN ADA TRY LAGI) ---
+st.markdown('<p style="text-align: center; font-size: 0.8rem; color: #888;">© 2026 Mahasewa BBFS Digital Team</p>', unsafe_allow_html=True)
 
 
 # --- JAM OTOMATIS SDY, SGP, HK ---
@@ -189,5 +192,6 @@ try:
 except:
     pass
 # --------------------------------
+
 
 
