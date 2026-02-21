@@ -134,64 +134,8 @@ with col_logo2:
     st.image(logo_url, use_container_width=True)
     st.markdown("<h2 style='text-align: center; color: #FF4B4B;'>MAHASEWA BBFS</h2>", unsafe_allow_html=True)
 
-st.divider()
-
-pasaran_pilih = st.selectbox("🎯 Pilih Pasaran:", ("Hong Kong (HK)", "Sydney (SDY)", "Singapore (SGP)"))
-
-st.write("🔍 **Opsi Mode Utama:**")
-c1, c2, c3 = st.columns(3)
-show_4d = c1.checkbox("Mode 4D", value=True)
-show_3d = c2.checkbox("Mode 3D", value=False)
-show_2d = c3.checkbox("Mode 2D", value=False)
-
-st.write("👯 **Opsi Angka Kembar:**")
-k1, k2, k3 = st.columns(3)
-show_twin = k1.checkbox("Twin (4D)", value=False)
-show_triple = k2.checkbox("Triple (4D)", value=False)
-show_quad = k3.checkbox("Quad (4D)", value=False)
-
-input_bbfs = st.text_input("🎲 Masukkan Angka BBFS:", placeholder="Contoh: 12345", max_chars=10)
-tombol_proses = st.button("🚀 PROSES SEKARANG")
-
-file_map = {"Hong Kong (HK)": "data_keluaran_hk.txt", "Sydney (SDY)": "data_keluaran_sdy.txt", "Singapore (SGP)": "data_keluaran_sgp.txt"}
-URL_DATA = f"https://raw.githubusercontent.com/Mahasewa/mesin-bbfs/main/{file_map[pasaran_pilih]}"
-try:
-            respon = requests.get(URL_DATA)
-            data_ada = set(re.findall(r'\b\d{4}\b', respon.text))
-        except:
-            data_ada = set()
-
-# --- BAGIAN PALING BAWAH (JANGAN ADA TRY LAGI) ---
-st.markdown('<p style="text-align: center; font-size: 0.8rem; color: #888;">© 2026 Mahasewa BBFS Digital Team</p>', unsafe_allow_html=True)
 
 
-# --- JAM OTOMATIS SDY, SGP, HK ---
-jam_sekarang = datetime.datetime.now().strftime("%H:%M")
-
-try:
-    # 1. SDY (14:02 - 14:15)
-    if "14:02" <= jam_sekarang <= "14:15":
-        r = requests.get("https://sydneypoolstoday.com/live.html", timeout=10)
-        soup = BeautifulSoup(r.text, 'html.parser')
-        angka = soup.find("div", {"id": "p1_res"}).text.strip()[-4:]
-        update_dan_tata_kolom("SDY", angka)
-
-    # 2. SGP (17:47 - 18:00)
-    if "17:47" <= jam_sekarang <= "18:00":
-        r = requests.get("https://4dno.org/singapore", timeout=10)
-        soup = BeautifulSoup(r.text, 'html.parser')
-        angka = soup.find("td", {"class": "result4d"}).text.strip()
-        update_dan_tata_kolom("SGP", angka)
-
-    # 3. HK (23:02 - 23:15)
-    if "23:02" <= jam_sekarang <= "23:15":
-        r = requests.get("https://www.hongkongpools.com/live.html", timeout=10)
-        soup = BeautifulSoup(r.text, 'html.parser')
-        angka = soup.find("div", {"id": "p1_res"}).text.strip()[-4:]
-        update_dan_tata_kolom("HK", angka)
-except:
-    pass
-# --------------------------------
 
 
 
