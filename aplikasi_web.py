@@ -132,29 +132,42 @@ if tombol_proses and input_bbfs:
             for i in range(0, len(daftar_angka), 300):
                 st.code("*".join(daftar_angka[i:i+300]))
 
-    # Proses BBFS Murni
+    # 1. Proses 4D
     if show_4d:
         a4, b4, p4 = get_kombinasi(input_bbfs, 4, data_ada)
-        cetak_hasil_blok("4D UTAMA (ACAK)", a4)
-        col1, col2 = st.columns(2)
-        with col1:
+        if a4:
+            st.subheader(f"📊 HASIL 4D ACAK ({len(a4)} Line)")
+            # Dibagi per 300 line sesuai permintaan Koh
+            for i in range(0, len(a4), 300):
+                akhir = i + 300
+                with st.expander(f"📦 BLOK 4D (No. {i+1} - {min(akhir, len(a4))})"):
+                    st.code("*".join(a4[i:akhir]))
             if b4: st.warning(f"⚠️ BERURUTAN (4D): {', '.join(b4)}")
-        with col2:
             if p4: st.error(f"🔥 DATA PANAS (4D): {', '.join(p4)}")
 
     # 2. Proses 3D
     if show_3d:
         a3, b3, p3 = get_kombinasi(input_bbfs, 3, data_ada)
-        cetak_hasil_blok("3D UTAMA (ACAK)", a3)
-        if b3: st.warning(f"⚠️ BERURUTAN (3D): {', '.join(b3)}")
-        if p3: st.error(f"🔥 DATA PANAS (3D): {', '.join(p3)}")
+        if a3:
+            st.subheader(f"📊 HASIL 3D ACAK ({len(a3)} Line)")
+            for i in range(0, len(a3), 300):
+                akhir = i + 300
+                with st.expander(f"📦 BLOK 3D (No. {i+1} - {min(akhir, len(a3))})"):
+                    st.code("*".join(a3[i:akhir]))
+            if b3: st.warning(f"⚠️ BERURUTAN (3D): {', '.join(b3)}")
+            if p3: st.error(f"🔥 DATA PANAS (3D): {', '.join(p3)}")
 
     # 3. Proses 2D
     if show_2d:
         a2, b2, p2 = get_kombinasi(input_bbfs, 2, data_ada)
-        cetak_hasil_blok("2D UTAMA (ACAK)", a2)
-        if b2: st.warning(f"⚠️ BERURUTAN (2D): {', '.join(b2)}")
-        if p2: st.error(f"🔥 DATA PANAS (2D): {', '.join(p2)}")
+        if a2:
+            st.subheader(f"📊 HASIL 2D ACAK ({len(a2)} Line)")
+            for i in range(0, len(a2), 300):
+                akhir = i + 300
+                with st.expander(f"📦 BLOK 2D (No. {i+1} - {min(akhir, len(a2))})"):
+                    st.code("*".join(a2[i:akhir]))
+            if b2: st.warning(f"⚠️ BERURUTAN (2D): {', '.join(b2)}")
+            if p2: st.error(f"🔥 DATA PANAS (2D): {', '.join(p2)}")
     
    # 4. Proses Kembar (Strict) & Cek Data Panas
     if show_twin:
@@ -191,6 +204,7 @@ elif tombol_proses and not input_bbfs:
     st.error("Isi angkanya dulu Koh!")
 
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
+
 
 
 
