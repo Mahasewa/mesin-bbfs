@@ -3,7 +3,7 @@ import re
 import requests
 import itertools
 from itertools import permutations
-from bs4 import BeautifulSoup
+from bs4 import beautifulSoup
 import datetime
 import os
 import base64
@@ -158,3 +158,4 @@ URL_DATA = f"https://raw.githubusercontent.com/Mahasewa/mesin-bbfs/main/{file_ma
 try:
     respon = requests.get(URL_DATA)
     data_ada = set(re.findall(r'\b\d{4}\b', respon.text
+
