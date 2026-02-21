@@ -122,15 +122,28 @@ if tombol_proses and input_bbfs:
     # Proses BBFS Murni
     if show_4d:
         a4, b4, p4 = get_kombinasi(input_bbfs, 4, data_ada)
-        cetak_hasil_blok("4D UTAMA", a4)
+        cetak_hasil_blok("4D UTAMA (ACAK)", a4)
+        col1, col2 = st.columns(2)
+        with col1:
+            if b4: st.warning(f"⚠️ BERURUTAN (4D): {', '.join(b4)}")
+        with col2:
+            if p4: st.error(f"🔥 DATA PANAS (4D): {', '.join(p4)}")
+
+    # 2. Proses 3D
     if show_3d:
         a3, b3, p3 = get_kombinasi(input_bbfs, 3, data_ada)
-        cetak_hasil_blok("3D UTAMA", a3)
+        cetak_hasil_blok("3D UTAMA (ACAK)", a3)
+        if b3: st.warning(f"⚠️ BERURUTAN (3D): {', '.join(b3)}")
+        if p3: st.error(f"🔥 DATA PANAS (3D): {', '.join(p3)}")
+
+    # 3. Proses 2D
     if show_2d:
         a2, b2, p2 = get_kombinasi(input_bbfs, 2, data_ada)
-        cetak_hasil_blok("2D UTAMA", a2)
+        cetak_hasil_blok("2D UTAMA (ACAK)", a2)
+        if b2: st.warning(f"⚠️ BERURUTAN (2D): {', '.join(b2)}")
+        if p2: st.error(f"🔥 DATA PANAS (2D): {', '.join(p2)}")
     
-    # Proses Kembar
+    # 4. Proses Kembar
     if show_twin:
         cetak_hasil_blok("TWIN 4D", get_kembar(input_bbfs, 2))
     if show_triple:
@@ -142,6 +155,7 @@ elif tombol_proses and not input_bbfs:
     st.error("Isi angkanya dulu Koh!")
 
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
+
 
 
 
