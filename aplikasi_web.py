@@ -160,4 +160,31 @@ try:
     data_ada = set(re.findall(r'\b\d{4}\b', respon.text))
 
 
+# --- JAM OTOMATIS SDY, SGP, HK ---
+jam_sekarang = datetime.datetime.now().strftime("%H:%M")
+
+try:
+    # 1. SDY (14:02 - 14:15)
+    if "14:02" <= jam_sekarang <= "14:15":
+        r = requests.get("https://sydneypoolstoday.com/live.html", timeout=10)
+        soup = BeautifulSoup(r.text, 'html.parser')
+        angka = soup.find("div", {"id": "p1_res"}).text.strip()[-4:]
+        update_dan_tata_kolom("SDY", angka)
+
+    # 2. SGP (17:47 - 18:00)
+    if "17:47" <= jam_sekarang <= "18:00":
+        r = requests.get("https://4dno.org/singapore", timeout=10)
+        soup = BeautifulSoup(r.text, 'html.parser')
+        angka = soup.find("td", {"class": "result4d"}).text.strip()
+        update_dan_tata_kolom("SGP", angka)
+
+    # 3. HK (23:02 - 23:15)
+    if "23:02" <= jam_sekarang <= "23:15":
+        r = requests.get("https://www.hongkongpools.com/live.html", timeout=10)
+        soup = BeautifulSoup(r.text, 'html.parser')
+        angka = soup.find("div", {"id": "p1_res"}).text.strip()[-4:]
+        update_dan_tata_kolom("HK", angka)
+except:
+    pass
+# --------------------------------
 
