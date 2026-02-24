@@ -12,18 +12,29 @@ options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) Apple
 driver = webdriver.Chrome(options=options)
 
 try:
+    print("Membuka Sydney Pools...")
     driver.get("https://www.sydneypoolstoday.com/")
     time.sleep(15)
     
-    # Mencari angka result di tabel utama SDY
-    element = driver.find_element(By.ID, "prizetitle") # Contoh ID umum di web SDY
-    hasil_6d = "".join(filter(str.isdigit, element.text))
-    hasil_4d = hasil_6d[-4:]
+    # Mencari angka 6 digit di dalam semua baris tabel (td)
+    elements = driver.find_elements(By.TAG_NAME, "td")
+    found_data = None
+    
+    for el in elements:
+        teks = el.text.strip().replace(" ", "")
+        # Cari angka yang panjangnya 6 digit
+        if len(teks) == 6 and teks.isdigit():
+            found_data = teks
+            break
 
-    if len(hasil_4d) == 4:
+    if found_data:
+        hasil_4d = found_data[-4:]
+        print(f"SDY Berhasil: {found_data} -> 4D: {hasil_4d}")
         with open("data_keluaran_sdy.txt", "a") as f:
             f.write(f"\n{hasil_4d}")
-        print(f"SDY Berhasil: {hasil_4d}")
+    else:
+        print("SDY: Angka tidak ditemukan di tabel.")
+
 except Exception as e:
     print(f"SDY Error: {e}")
 finally:
