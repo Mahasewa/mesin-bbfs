@@ -1,3 +1,12 @@
+// letakkan paling atas di perintah.js
+const daftarFitur = [
+    { id: "3d", nama: "PASANG 3D" },
+    { id: "4d", nama: "PASANG 4D" }
+];
+
+// ... (sisa kode fungsi eksekusiPerintah dan salinTeks tetap sama)
+
+
 // 1. DAFTAR TOMBOL (Tambah di sini kalau mau tombol baru)
 const daftarFitur = [
     { id: "3d", nama: "PASANG 3D" },
