@@ -47,7 +47,7 @@ def scrape_sdy(url, name):
 # Link 1: Utama, Link 2: Backup
 targets = [
     {"name": "SydneyPoolsToday", "url": "https://www.sydneypoolstoday.com/"},
-    {"name": "Link IP Backup", "url": "http://206.189.46.235/live-syd.php"}
+    {"name": "Link IP Backup", "url": "http://188.166.180.129/live-draw-sdy.php"}
 ]
 
 hasil_4d = None
