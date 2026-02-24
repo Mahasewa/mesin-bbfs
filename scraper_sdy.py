@@ -1,4 +1,5 @@
 import time
+import re
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
@@ -12,43 +13,35 @@ options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) Apple
 driver = webdriver.Chrome(options=options)
 
 try:
-    print("Membuka Sydney Pools...")
-    # Kita coba link alternatif yang lebih stabil untuk scraping
     driver.get("https://www.sydneypoolstoday.com/")
-    time.sleep(20) # Tunggu lebih lama agar tabel angka termuat
+    time.sleep(20)
     
-    # Strategi: Cari semua baris tabel, lalu cari angka 6 digit di dalamnya
-    found_data = None
-    rows = driver.find_elements(By.TAG_NAME, "tr")
+    table_text = driver.find_element(By.TAG_NAME, "table").text
+    all_numbers = re.findall(r'\d{6}', table_text)
     
-    for row in rows:
-        text = row.text.replace(" ", "").strip()
-        # Cari angka 6 digit yang mungkin nempel dengan teks lain
-        import re
-        match = re.search(r'\d{6}', text)
-        if match:
-            found_data = match.group()
+    found_4d = None
+    for num in all_numbers:
+        if "2026" not in num: # Hindari ambil angka tahun
+            found_4d = num[-4:]
             break
 
-    if found_data:
-        hasil_4d = found_data[-4:]
-        print(f"SDY Berhasil Ditemukan: {found_data} -> 4D: {hasil_4d}")
-        with open("data_keluaran_sdy.txt", "a") as f:
-            f.write(f"\n{hasil_4d}")
-    else:
-        # Jika masih gagal, ambil teks dari elemen yang biasanya jadi tempat Prize 1
-        print("Mencoba metode cadangan...")
-        element = driver.find_element(By.XPATH, "//div[contains(@id, 'prize1')] | //td[contains(@class, 'result')]")
-        data_raw = "".join(filter(str.isdigit, element.text))
-        if len(data_raw) >= 4:
-            hasil_4d = data_raw[-4:]
+    if found_4d:
+        # LOGIKA ANTI-DUPLIKAT
+        try:
+            with open("data_keluaran_sdy.txt", "r") as f:
+                lines = f.readlines()
+                last_line = lines[-1].strip() if lines else ""
+        except FileNotFoundError:
+            last_line = ""
+
+        if found_4d != last_line:
             with open("data_keluaran_sdy.txt", "a") as f:
-                f.write(f"\n{hasil_4d}")
-            print(f"SDY Berhasil (Metode Cadangan): {hasil_4d}")
+                f.write(f"\n{found_4d}")
+            print(f"SDY Berhasil Simpan: {found_4d}")
         else:
-            print("SDY: Benar-benar tidak menemukan angka di halaman ini.")
+            print(f"SDY: Angka {found_4d} sudah ada, skip.")
 
 except Exception as e:
-    print(f"SDY Error Sistem: {e}")
+    print(f"SDY Error: {e}")
 finally:
     driver.quit()
