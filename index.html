@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mesin Mahasewa v2</title>
+    <title>Mesin Mahasewa v3 - Dinamis</title>
     <style>
         body { font-family: sans-serif; background: #1a1a1a; color: #eee; padding: 20px; text-align: center; }
-        .menu-tombol, .main-layout { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+        .menu-tombol, .main-layout, .fitur-layout { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
         button { padding: 12px 15px; cursor: pointer; border: none; border-radius: 5px; background: #333; color: white; font-weight: bold; transition: 0.2s; }
         button:hover { background: #444; }
         .active { background: #d9534f; }
-        .btn-gen { background: #f0ad4e; color: #000; margin-top: 10px; }
+        .btn-fitur { background: #f0ad4e; color: #000; font-size: 0.9em; }
         
         .card { background: #222; padding: 15px; border-radius: 10px; width: 100%; max-width: 400px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
         .grid-2d { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; max-height: 200px; overflow-y: auto; background: #000; padding: 10px; border-radius: 5px; }
@@ -20,19 +20,7 @@
         
         .block-container { margin-bottom: 20px; border-bottom: 1px dashed #444; padding-bottom: 15px; }
         .copy-btn { background: #5cb85c; color: white; padding: 6px 12px; font-size: 0.8em; margin-bottom: 8px; border-radius: 4px; display: inline-block; }
-        
-        /* CSS AGAR TEKS NYAMBUNG KE SAMPING DAN OTOMATIS TURUN (WORD WRAP) */
-        pre { 
-            color: #0f0; 
-            font-family: 'Courier New', monospace; 
-            white-space: pre-wrap;       /* Menjaga spasi tetap ada tapi bisa turun baris */
-            word-wrap: break-word;       /* Memotong kata jika terlalu panjang */
-            background: #000; 
-            padding: 10px; 
-            border-radius: 4px;
-            line-height: 1.6;
-            letter-spacing: 1px;
-        }
+        pre { color: #0f0; font-family: 'Courier New', monospace; white-space: pre-wrap; word-wrap: break-word; background: #000; padding: 10px; border-radius: 4px; line-height: 1.6; letter-spacing: 1px; }
         .badge { background: #d9534f; padding: 2px 8px; border-radius: 10px; font-size: 0.8em; }
     </style>
 </head>
@@ -40,7 +28,7 @@
 
     <h1>MESIN MAHASEWA</h1>
     
-    <div class="menu-tombol">
+    <div class="menu-tombol" id="menu-pasaran">
         <button onclick="pilihPasaran('hk', this)">HK</button>
         <button onclick="pilihPasaran('sdy', this)">SDY</button>
         <button onclick="pilihPasaran('sgp', this)">SGP</button>
@@ -54,17 +42,14 @@
         <div class="card">
             <h2 id="judul-belum" style="color:#5cb85c">Ekor Hijau</h2>
             <div id="display-belum" class="grid-2d"></div>
-            <div style="display: flex; gap: 5px; justify-content: center;">
-                <button id="btn3d" class="btn-gen" onclick="run(3)" disabled>3D</button>
-                <button id="btn4d" class="btn-gen" onclick="run(4)" disabled>4D</button>
-            </div>
+            
+            <div class="fitur-layout" id="wadah-fitur"></div>
         </div>
     </div>
 
     <div id="hasil-container" style="max-width: 900px; margin: 0 auto;">
         <button class="accordion">HASIL ACAK <span id="count-acak" class="badge">0</span></button>
         <div id="panel-acak" class="panel"></div>
-
         <button class="accordion">HASIL TWIN <span id="count-twin" class="badge">0</span></button>
         <div id="panel-twin" class="panel"></div>
     </div>
@@ -75,60 +60,59 @@
         const user = "Mahasewa", repo = "mesin-bbfs";
         let dHijau = [], dHistory = [];
 
+        // Fungsi Load Tombol dari perintah.js
+        window.onload = () => {
+            const wadah = document.getElementById('wadah-fitur');
+            if(typeof daftarFitur !== 'undefined') {
+                daftarFitur.forEach(fitur => {
+                    let btn = document.createElement('button');
+                    btn.className = "btn-fitur";
+                    btn.innerText = fitur.nama;
+                    btn.id = "btn-" + fitur.id;
+                    btn.disabled = true;
+                    btn.onclick = () => runFitur(fitur.id);
+                    wadah.appendChild(btn);
+                });
+            }
+        };
+
         async function pilihPasaran(p, btn) {
-            document.querySelectorAll('.menu-tombol button').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('#menu-pasaran button').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             
             try {
                 const res = await fetch(`https://raw.githubusercontent.com/${user}/${repo}/main/data_keluaran_${p}.txt`);
                 const txt = await res.text();
                 dHistory = txt.trim().split("\n").map(l => l.trim());
-                
                 const last = [...dHistory].slice(-100).reverse();
                 let sArr = last.map(a => a.slice(-2));
-                
                 dHijau = [];
                 document.getElementById('display-sudah').innerHTML = last.map(a => `<div>${a.slice(-2)}</div>`).join('');
-                
                 let hBelum = "";
                 for(let i=0; i<=99; i++) {
                     let n = i.toString().padStart(2, '0');
-                    if(!sArr.includes(n)) { 
-                        dHijau.push(n); 
-                        hBelum += `<div style="color:#5cb85c">${n}</div>`; 
-                    }
+                    if(!sArr.includes(n)) { dHijau.push(n); hBelum += `<div style="color:#5cb85c">${n}</div>`; }
                 }
                 document.getElementById('display-belum').innerHTML = hBelum;
                 document.getElementById('judul-belum').innerText = `Ekor Hijau (${dHijau.length})`;
-                document.getElementById('btn3d').disabled = document.getElementById('btn4d').disabled = false;
-            } catch (e) { alert("Koneksi gagal!"); }
+                document.querySelectorAll('.btn-fitur').forEach(b => b.disabled = false);
+            } catch (e) { alert("Gagal!"); }
         }
 
-        async function run(mode) {
-            // Fungsi ini memanggil perintah.js
-            const hasil = await prosesGenerate(mode, dHijau, dHistory);
+        async function runFitur(id) {
+            const hasil = await eksekusiPerintah(id, dHijau, dHistory);
             render('panel-acak', 'count-acak', hasil.acak);
             render('panel-twin', 'count-twin', hasil.twin);
-            alert("Hasil Berhasil Diracik!");
         }
 
         function render(id, cId, arr) {
             const container = document.getElementById(id);
             document.getElementById(cId).innerText = arr.length + " Line";
             container.innerHTML = "";
-            
-            if (arr.length === 0) { container.innerHTML = "Tidak ada angka ditemukan."; return; }
-
             for (let i = 0; i < arr.length; i += 300) {
-                let chunk = arr.slice(i, i + 300).join("*") + "*"; // Tanpa spasi, pisah bintang
+                let chunk = arr.slice(i, i + 300).join("*") + "*";
                 let blockId = `box-${id}-${i}`;
-                
-                container.innerHTML += `
-                    <div class="block-container">
-                        <h4>BLOK ${Math.floor(i/300)+1}</h4>
-                        <button class="copy-btn" onclick="salinTeks('${blockId}')">Copy Blok Ini</button>
-                        <pre id="${blockId}">${chunk}</pre>
-                    </div>`;
+                container.innerHTML += `<div class="block-container"><h4>BLOK ${Math.floor(i/300)+1}</h4><button class="copy-btn" onclick="salinTeks('${blockId}')">Copy</button><pre id="${blockId}">${chunk}</pre></div>`;
             }
         }
 
