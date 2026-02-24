@@ -1,7 +1,9 @@
 import time
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
+from webdriver_manager.chrome import ChromeDriverManager
 
 options = Options()
 options.add_argument("--headless")
@@ -9,19 +11,19 @@ options.add_argument("--no-sandbox")
 options.add_argument("--disable-dev-shm-usage")
 options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
 
-driver = webdriver.Chrome(options=options)
+# Perbaikan: Menggunakan Service agar tidak bentrok versi Chrome
+service = Service(ChromeDriverManager().install())
+driver = webdriver.Chrome(service=service, options=options)
 
 try:
     driver.get("https://www.hongkongpools.com/live.html")
     time.sleep(20) 
 
-    # Ambil elemen result
     element = driver.find_element(By.CSS_SELECTOR, "td.result, .result-6d, #result-6d")
     hasil_6d = "".join(filter(str.isdigit, element.text))
     hasil_4d = hasil_6d[-4:]
 
     if len(hasil_4d) == 4:
-        # LOGIKA ANTI-DUPLIKAT
         try:
             with open("data_keluaran_hk.txt", "r") as f:
                 lines = f.readlines()
