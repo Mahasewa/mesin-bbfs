@@ -1,25 +1,13 @@
-// letakkan paling atas di perintah.js
+// 1. DAFTAR TOMBOL (Tambah di sini kalau mau fitur baru)
 const daftarFitur = [
     { id: "3d", nama: "PASANG 3D" },
     { id: "4d", nama: "PASANG 4D" }
 ];
 
-// ... (sisa kode fungsi eksekusiPerintah dan salinTeks tetap sama)
-
-
-// 1. DAFTAR TOMBOL (Tambah di sini kalau mau tombol baru)
-const daftarFitur = [
-    { id: "3d", nama: "PASANG 3D" },
-    { id: "4d", nama: "PASANG 4D" }
-    // Nanti tinggal tambah { id: "statistik", nama: "STATISTIK" } kalau mau
-];
-
-// 2. FUNGSI EKSEKUSI (Logika utama)
+// 2. LOGIKA UTAMA (Otak Mesin)
 async function eksekusiPerintah(id, dataHijau, dataHistory) {
     let acak = [];
     let twin = [];
-    
-    // Penentuan Mode berdasarkan ID Tombol
     let mode = (id === "4d") ? 4 : 3;
 
     dataHijau.forEach(ekor => {
@@ -28,15 +16,15 @@ async function eksekusiPerintah(id, dataHijau, dataHistory) {
             let depan = (mode === 4) ? i.toString().padStart(2, '0') : i.toString();
             let gabung = depan + ekor;
             
-            // Filter 1: Anti Quad/Triple
+            // Filter: Anti Quad/Triple (Max 2 digit sama)
             let counts = {};
             for(let char of gabung) counts[char] = (counts[char] || 0) + 1;
             if (Math.max(...Object.values(counts)) >= 3) continue;
 
-            // Filter 2: Seri Depan-Belakang
+            // Filter: Seri Depan-Belakang
             if (ekor[0] === ekor[1] && depan.endsWith(ekor[0])) continue;
 
-            // Filter 3: Riwayat
+            // Filter: Riwayat
             if (dataHistory.some(h => h.endsWith(gabung))) continue;
 
             let unik = new Set(gabung).size;
@@ -44,7 +32,6 @@ async function eksekusiPerintah(id, dataHijau, dataHistory) {
             else twin.push(gabung);
         }
     });
-
     return { acak, twin };
 }
 
@@ -52,6 +39,6 @@ async function eksekusiPerintah(id, dataHijau, dataHistory) {
 function salinTeks(id) {
     const teks = document.getElementById(id).innerText;
     navigator.clipboard.writeText(teks).then(() => {
-        alert("Data berhasil dicopy, Koh!");
+        alert("Data berhasil dicopy ke clipboard, Koh!");
     });
 }
