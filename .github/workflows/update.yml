@@ -1,0 +1,33 @@
+name: Update HK Otomatis
+
+on:
+  schedule:
+    # Jam 23:05 WIB = 16:05 UTC
+    - cron: '05 16 * * *'
+  workflow_dispatch: # Tombol rahasia untuk tes manual
+
+jobs:
+  run-scraper:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ambil Kode Repo
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install Selenium
+        run: pip install selenium
+
+      - name: Jalankan Scraper
+        run: python scraper.py
+
+      - name: Simpan Perubahan ke Repo
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add data_keluaran_hk.txt
+          git commit -m "Update HK 4D Otomatis" || exit 0
+          git push
