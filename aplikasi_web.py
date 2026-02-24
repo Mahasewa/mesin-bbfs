@@ -1,94 +1,166 @@
 import streamlit as st
 import re
+import requests
 import itertools
+from itertools import permutations
 
-# --- KONFIGURASI HALAMAN ---
-st.set_page_config(page_title="MAHASEWA BBFS DIGITAL", page_icon="🚀", layout="wide")
+# --- LOGIKA MESIN ---
+def is_berurutan(angka):
+    try:
+        n = [int(d) for d in angka]
+        naik = all(n[i] + 1 == n[i+1] for i in range(len(n)-1))
+        turun = all(n[i] - 1 == n[i+1] for i in range(len(n)-1))
+        return naik or turun
+    except:
+        return False
 
-# --- CSS CUSTOM (BIAR TAMPILAN KEREN SEPERTI DULU) ---
+def get_kombinasi(input_digits, digit_count, data_ada):
+    hasil_raw = sorted(list(set("".join(p) for p in permutations(input_digits, digit_count))))
+    acak = [a for a in hasil_raw if not is_berurutan(a)]
+    berurutan = [a for a in hasil_raw if is_berurutan(a)]
+    panas = [a for a in hasil_raw if any(a in d for d in data_ada)]
+    return acak, berurutan, panas
+
+def get_kembar_strict(input_digits, tipe):
+    # Menghasilkan semua kombinasi 4 digit (itertools.product)
+    hasil_raw = ["".join(p) for p in itertools.product(input_digits, repeat=4)]
+    final = []
+    for h in hasil_raw:
+        counts = [h.count(d) for d in set(h)]
+        max_c = max(counts)
+        
+        if tipe == 2: # TWIN SAJA (Paling banyak ada 2 angka sama, bukan 3 atau 4)
+            if max_c == 2: final.append(h)
+        elif tipe == 3: # TRIPLE SAJA (Paling banyak ada 3 angka sama, bukan 4)
+            if max_c == 3: final.append(h)
+        elif tipe == 4: # QUAD (Harus 4 angka sama)
+            if max_c == 4: final.append(h)
+            
+    return sorted(list(set(final)))
+
+# --- TAMPILAN WEB ---
+st.set_page_config(page_title="Mahasewa BBFS Pro", layout="wide")
+
 st.markdown("""
     <style>
-    .main { background-color: #0e1117; }
-    .stButton>button {
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    
+    code {
+        white-space: pre-wrap !important; 
+        word-break: break-all !important;
+        background-color: #ffffff !important; 
+        color: #000000 !important;
+        -webkit-text-fill-color: #000000 !important;
+        display: block;
+        padding: 25px !important;
+        border-radius: 10px;
+        border: 1px solid #eeeeee !important;
+        font-weight: bold !important;
+        font-size: 1.2rem !important;
+        line-height: 2.5 !important;
+        min-height: fit-content !important;
+        overflow: visible !important;
+    }
+    
+    div.stButton > button {
         width: 100%;
-        border-radius: 20px;
-        background: linear-gradient(45deg, #ff4b4b, #ff814b);
+        background: linear-gradient(to right, #FF4B2B, #FF416C);
         color: white;
         font-weight: bold;
-        border: none;
-        height: 3em;
-    }
-    .stTextInput>div>div>input {
+        padding: 15px;
         border-radius: 10px;
-        text-align: center;
-        font-size: 20px;
-    }
-    .header-text {
-        text-align: center;
-        color: #ff4b4b;
-        font-family: 'Arial Black';
-        text-shadow: 2px 2px #000;
+        border: none;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# --- LOGO DAN JUDUL (Tampilan Jadul Koh) ---
-st.markdown("<h1 class='header-text'>🚀 MAHASEWA BBFS DIGITAL</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #888;'>Solusi Cerdas BBFS 4D/3D/2D</p>", unsafe_allow_html=True)
+# --- HEADER LOGO ---
+col_logo1, col_logo2, col_logo3 = st.columns([1, 2, 1])
+with col_logo2:
+    logo_url = "https://raw.githubusercontent.com/Mahasewa/mesin-bbfs/main/logo_mahasewa.png"
+    st.image(logo_url, use_container_width=True)
+    st.markdown("<h2 style='text-align: center; color: #FF4B4B;'>MAHASEWA BBFS</h2>", unsafe_allow_html=True)
+
+st.divider()
 
 # --- INPUT AREA ---
-input_bbfs = st.text_input("🔢 MASUKKAN ANGKA BBFS (Max 10 Digit):", placeholder="Contoh: 12345")
+pasaran = st.selectbox("🎯 Pilih Pasaran:", ("Hong Kong (HK)", "Sydney (SDY)", "Singapore (SGP)"))
 
-# Kolom Twin, Triple, Quad
+st.write("🔍 **Opsi Mode Utama:**")
+c1, c2, c3 = st.columns(3)
+show_4d = c1.checkbox("Mode 4D", value=True)
+show_3d = c2.checkbox("Mode 3D", value=False)
+show_2d = c3.checkbox("Mode 2D", value=False)
+
+st.write("👯 **Opsi Angka Kembar:**")
 k1, k2, k3 = st.columns(3)
-with k1:
-    show_twin = st.checkbox("Twin (4D)", value=False)
-with k2:
-    show_triple = st.checkbox("Triple (4D)", value=False)
-with k3:
-    show_quad = st.checkbox("Quad (4D)", value=False)
+show_twin = k1.checkbox("Twin Saja", value=False)
+show_triple = k2.checkbox("Triple Saja", value=False)
+show_quad = k3.checkbox("Quad Saja", value=False)
 
+input_bbfs = st.text_input("🎲 Masukkan Angka BBFS:", placeholder="Contoh: 12345", max_chars=10)
 tombol_proses = st.button("🚀 PROSES SEKARANG")
 
-# --- MESIN UTAMA BBFS ---
-if tombol_proses:
-    if input_bbfs:
-        # Hanya ambil angka
-        angka_raw = re.findall(r'\d', input_bbfs)
-        angka_unik = sorted(list(set(angka_raw)))
-        
-        if len(angka_unik) < 2:
-            st.error("❌ Masukkan minimal 2 digit angka!")
-        else:
-            # Fungsi BBFS Murni
-            def bbfs_generate(n):
-                return ["".join(p) for p in itertools.permutations(angka_unik, n)]
+# --- AMBIL DATA ---
+file_map = {"Hong Kong (HK)": "data_keluaran_hk.txt", "Sydney (SDY)": "data_keluaran_sdy.txt", "Singapore (SGP)": "data_keluaran_sgp.txt"}
+URL_DATA = f"https://raw.githubusercontent.com/Mahasewa/mesin-bbfs/main/{file_map[pasaran]}"
+try:
+    respon = requests.get(URL_DATA)
+    data_ada = set(re.findall(r'\b\d{4}\b', respon.text)) if respon.status_code == 200 else set()
+except:
+    data_ada = set()
 
-            # Menampilkan hasil dalam kolom yang rapi
-            col_a, col_b, col_c = st.columns(3)
-            
-            with col_a:
-                st.markdown("### 🔴 4D")
-                hasil_4d = bbfs_generate(4)
-                st.write(f"Total: {len(hasil_4d)}")
-                st.text_area("Hasil 4D", value=", ".join(hasil_4d), height=200)
+# --- EKSEKUSI ---
+if tombol_proses and input_bbfs:
+    def cetak_hasil_blok(label, daftar_angka):
+        if daftar_angka:
+            st.subheader(f"📊 {label} ({len(daftar_angka)} Line)")
+            for i in range(0, len(daftar_angka), 300):
+                st.code("*".join(daftar_angka[i:i+300]))
 
-            with col_b:
-                st.markdown("### 🟡 3D")
-                hasil_3d = bbfs_generate(3)
-                st.write(f"Total: {len(hasil_3d)}")
-                st.text_area("Hasil 3D", value=", ".join(hasil_3d), height=200)
+    # 1. Proses 4D
+    if show_4d:
+        a4, b4, p4 = get_kombinasi(input_bbfs, 4, data_ada)
+        cetak_hasil_blok("4D UTAMA (ACAK)", a4)
+        if b4: st.warning(f"⚠️ BERURUTAN (4D): {', '.join(b4)}")
+        if p4: st.error(f"🔥 DATA PANAS (4D): {', '.join(p4)}")
 
-            with col_c:
-                st.markdown("### 🟢 2D")
-                hasil_2d = bbfs_generate(2)
-                st.write(f"Total: {len(hasil_2d)}")
-                st.text_area("Hasil 2D", value=", ".join(hasil_2d), height=200)
-            
-            st.success("✅ Angka Berhasil Diolah!")
-    else:
-        st.warning("⚠️ Kotak input masih kosong, Koh!")
+    # 2. Proses 3D
+    if show_3d:
+        a3, b3, p3 = get_kombinasi(input_bbfs, 3, data_ada)
+        cetak_hasil_blok("3D UTAMA (ACAK)", a3)
+        if b3: st.warning(f"⚠️ BERURUTAN (3D): {', '.join(b3)}")
+        if p3: st.error(f"🔥 DATA PANAS (3D): {', '.join(p3)}")
 
-# --- FOOTER ---
-st.markdown("<br><hr>", unsafe_allow_html=True)
-st.markdown('<p style="text-align: center; font-size: 0.8rem; color: #888;">© 2026 Mahasewa BBFS Digital Team</p>', unsafe_allow_html=True)
+    # 3. Proses 2D
+    if show_2d:
+        a2, b2, p2 = get_kombinasi(input_bbfs, 2, data_ada)
+        cetak_hasil_blok("2D UTAMA (ACAK)", a2)
+        if b2: st.warning(f"⚠️ BERURUTAN (2D): {', '.join(b2)}")
+        if p2: st.error(f"🔥 DATA PANAS (2D): {', '.join(p2)}")
+    
+    # 4. Proses Kembar (Strict) & Cek Data Panas
+    if show_twin:
+        res_twin = get_kembar_strict(input_bbfs, 2)
+        p_twin = [a for a in res_twin if a in data_ada]
+        cetak_hasil_blok("TWIN 4D (HANYA 2 KEMBAR)", res_twin)
+        if p_twin: st.error(f"🔥 DATA PANAS TWIN: {', '.join(p_twin)}")
+
+    if show_triple:
+        res_trip = get_kembar_strict(input_bbfs, 3)
+        p_trip = [a for a in res_trip if a in data_ada]
+        cetak_hasil_blok("TRIPLE 4D (HANYA 3 KEMBAR)", res_trip)
+        if p_trip: st.error(f"🔥 DATA PANAS TRIPLE: {', '.join(p_trip)}")
+
+    if show_quad:
+        res_quad = get_kembar_strict(input_bbfs, 4)
+        p_quad = [a for a in res_quad if a in data_ada]
+        cetak_hasil_blok("QUAD 4D (4 KEMBAR)", res_quad)
+        if p_quad: st.error(f"🔥 DATA PANAS QUAD: {', '.join(p_quad)}")
+
+elif tombol_proses and not input_bbfs:
+    st.error("Isi angkanya dulu Koh!")
+
+st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
