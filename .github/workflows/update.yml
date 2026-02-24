@@ -1,33 +1,35 @@
-name: Update HK Otomatis
+name: Update Semua Data Togel
 
 on:
   schedule:
-    # Jam 23:05 WIB = 16:05 UTC
-    - cron: '05 16 * * *'
-  workflow_dispatch: # Tombol rahasia untuk tes manual
+    - cron: '10 07 * * *'  # SDY: Jam 14:10 WIB (07:10 UTC)
+    - cron: '55 10 * * *'  # SGP: Jam 17:55 WIB (10:55 UTC)
+    - cron: '05 16 * * *'  # HK:  Jam 23:05 WIB (16:05 UTC)
+  workflow_dispatch:
 
 jobs:
-  run-scraper:
+  run-all-scrapers:
     runs-on: ubuntu-latest
     steps:
-      - name: Ambil Kode Repo
-        uses: actions/checkout@v3
-
-      - name: Setup Python
-        uses: actions/setup-python@v4
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
           python-version: '3.9'
+      - run: pip install selenium
+      
+      - name: Jalankan SDY
+        run: python scraper_sdy.py || echo "SDY belum jamnya"
+        
+      - name: Jalankan SGP
+        run: python scraper_sgp.py || echo "SGP belum jamnya"
+        
+      - name: Jalankan HK
+        run: python scraper.py || echo "HK belum jamnya"
 
-      - name: Install Selenium
-        run: pip install selenium
-
-      - name: Jalankan Scraper
-        run: python scraper.py
-
-      - name: Simpan Perubahan ke Repo
+      - name: Push Perubahan
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add data_keluaran_hk.txt
-          git commit -m "Update HK 4D Otomatis" || exit 0
+          git add .
+          git commit -m "Update Data Togel Otomatis" || exit 0
           git push
