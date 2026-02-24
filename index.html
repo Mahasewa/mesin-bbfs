@@ -3,24 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mesin Mahasewa v3 - Dinamis</title>
+    <title>Mesin Mahasewa v3 - Final</title>
     <style>
         body { font-family: sans-serif; background: #1a1a1a; color: #eee; padding: 20px; text-align: center; }
         .menu-tombol, .main-layout, .fitur-layout { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
-        button { padding: 12px 15px; cursor: pointer; border: none; border-radius: 5px; background: #333; color: white; font-weight: bold; transition: 0.2s; }
-        button:hover { background: #444; }
+        button { padding: 12px 15px; cursor: pointer; border: none; border-radius: 5px; background: #333; color: white; font-weight: bold; }
         .active { background: #d9534f; }
         .btn-fitur { background: #f0ad4e; color: #000; font-size: 0.9em; }
-        
-        .card { background: #222; padding: 15px; border-radius: 10px; width: 100%; max-width: 400px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .btn-fitur:disabled { background: #555; color: #888; cursor: not-allowed; }
+        .card { background: #222; padding: 15px; border-radius: 10px; width: 100%; max-width: 400px; }
         .grid-2d { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; max-height: 200px; overflow-y: auto; background: #000; padding: 10px; border-radius: 5px; }
-        
         .accordion { background: #333; color: #fff; cursor: pointer; padding: 15px; width: 100%; border: none; text-align: left; margin-top: 10px; border-radius: 5px; display: flex; justify-content: space-between; font-weight: bold; border: 1px solid #444; }
-        .panel { display: none; background: #111; padding: 15px; border: 1px solid #444; border-top: none; text-align: left; border-radius: 0 0 5px 5px; }
-        
-        .block-container { margin-bottom: 20px; border-bottom: 1px dashed #444; padding-bottom: 15px; }
-        .copy-btn { background: #5cb85c; color: white; padding: 6px 12px; font-size: 0.8em; margin-bottom: 8px; border-radius: 4px; display: inline-block; }
-        pre { color: #0f0; font-family: 'Courier New', monospace; white-space: pre-wrap; word-wrap: break-word; background: #000; padding: 10px; border-radius: 4px; line-height: 1.6; letter-spacing: 1px; }
+        .panel { display: none; background: #111; padding: 15px; border: 1px solid #444; text-align: left; border-radius: 0 0 5px 5px; }
+        .copy-btn { background: #5cb85c; color: white; padding: 6px 12px; font-size: 0.8em; margin-bottom: 8px; border-radius: 4px; display: inline-block; cursor: pointer; }
+        pre { color: #0f0; font-family: 'Courier New', monospace; white-space: pre-wrap; word-wrap: break-word; background: #000; padding: 10px; border-radius: 4px; line-height: 1.6; }
         .badge { background: #d9534f; padding: 2px 8px; border-radius: 10px; font-size: 0.8em; }
     </style>
 </head>
@@ -37,13 +33,12 @@
     <div class="main-layout">
         <div class="card">
             <h2>Data Keluar</h2>
-            <div id="display-sudah" class="grid-2d"></div>
+            <div id="display-sudah" class="grid-2d">Pilih pasaran</div>
         </div>
         <div class="card">
             <h2 id="judul-belum" style="color:#5cb85c">Ekor Hijau</h2>
-            <div id="display-belum" class="grid-2d"></div>
-            
-            <div class="fitur-layout" id="wadah-fitur"></div>
+            <div id="display-belum" class="grid-2d">Pilih pasaran</div>
+            <div class="fitur-layout" id="wadah-fitur" style="margin-top:10px;"></div>
         </div>
     </div>
 
@@ -54,44 +49,33 @@
         <div id="panel-twin" class="panel"></div>
     </div>
 
-    <script src="perintah.js?v=1.1"></script>
+    <script src="perintah.js?v=1.5"></script>
 
     <script>
         const user = "Mahasewa", repo = "mesin-bbfs";
         let dHijau = [], dHistory = [];
 
-        // Fungsi Load Tombol dari perintah.js
-       function inisialisasiTombol() {
-    const wadah = document.getElementById('wadah-fitur');
-    
-    // Cek apakah variabel dari perintah.js sudah terbaca
-    if (typeof daftarFitur !== 'undefined') {
-        wadah.innerHTML = ""; // Bersihkan wadah agar tidak double
-        
-        daftarFitur.forEach(fitur => {
-            let btn = document.createElement('button');
-            btn.className = "btn-fitur";
-            btn.innerText = fitur.nama;
-            btn.id = "btn-" + fitur.id;
-            btn.disabled = true; // Tetap mati sampai Koh pilih pasaran
-            btn.onclick = () => runFitur(fitur.id);
-            wadah.appendChild(btn);
-        });
-        console.log("Sip! Tombol sudah muncul, Koh.");
-    } else {
-        // Jika belum terbaca, tunggu sebentar (200 milidetik) lalu cek lagi
-        console.log("Sabar Koh, lagi manggil perintah.js...");
-        setTimeout(inisialisasiTombol, 200);
-    }
-}
-
-// Perintah untuk jalankan fungsi di atas saat halaman dibuka
-window.onload = inisialisasiTombol;
+        // Fungsi Cek & Muat Tombol Otomatis
+        function inisialisasi() {
+            const wadah = document.getElementById('wadah-fitur');
+            if (typeof daftarFitur !== 'undefined') {
+                wadah.innerHTML = "";
+                daftarFitur.forEach(f => {
+                    let btn = document.createElement('button');
+                    btn.className = "btn-fitur";
+                    btn.innerText = f.nama;
+                    btn.disabled = true;
+                    btn.onclick = () => runFitur(f.id);
+                    wadah.appendChild(btn);
+                });
+            } else {
+                setTimeout(inisialisasi, 300); // Tunggu perintah.js terbaca
+            }
+        }
 
         async function pilihPasaran(p, btn) {
             document.querySelectorAll('#menu-pasaran button').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            
             try {
                 const res = await fetch(`https://raw.githubusercontent.com/${user}/${repo}/main/data_keluaran_${p}.txt`);
                 const txt = await res.text();
@@ -108,7 +92,7 @@ window.onload = inisialisasiTombol;
                 document.getElementById('display-belum').innerHTML = hBelum;
                 document.getElementById('judul-belum').innerText = `Ekor Hijau (${dHijau.length})`;
                 document.querySelectorAll('.btn-fitur').forEach(b => b.disabled = false);
-            } catch (e) { alert("Gagal!"); }
+            } catch (e) { alert("Gagal ambil data!"); }
         }
 
         async function runFitur(id) {
@@ -124,7 +108,7 @@ window.onload = inisialisasiTombol;
             for (let i = 0; i < arr.length; i += 300) {
                 let chunk = arr.slice(i, i + 300).join("*") + "*";
                 let blockId = `box-${id}-${i}`;
-                container.innerHTML += `<div class="block-container"><h4>BLOK ${Math.floor(i/300)+1}</h4><button class="copy-btn" onclick="salinTeks('${blockId}')">Copy</button><pre id="${blockId}">${chunk}</pre></div>`;
+                container.innerHTML += `<div style="margin-bottom:20px;"><h4>BLOK ${Math.floor(i/300)+1}</h4><div class="copy-btn" onclick="salinTeks('${blockId}')">Copy Blok Ini</div><pre id="${blockId}">${chunk}</pre></div>`;
             }
         }
 
@@ -134,6 +118,8 @@ window.onload = inisialisasiTombol;
                 p.style.display = (p.style.display === "block") ? "none" : "block";
             }
         });
+
+        window.onload = inisialisasi;
     </script>
 </body>
 </html>
