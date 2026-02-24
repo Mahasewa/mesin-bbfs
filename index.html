@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data 2D Pribadi</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; text-align: center; }
+        .container { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
+        .card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 250px; }
+        h2 { border-bottom: 2px solid #333; padding-bottom: 10px; }
+        ul { list-style: none; padding: 0; max-height: 400px; overflow-y: auto; text-align: left; }
+        li { padding: 5px 10px; border-bottom: 1px solid #eee; font-family: monospace; font-size: 1.2em; }
+        li:nth-child(odd) { background: #fafafa; }
+        .angka-2d { font-weight: bold; color: #d9534f; }
+    </style>
+</head>
+<body>
+
+    <h1>Rekap 2D Terakhir (100 Baris)</h1>
+    <div class="container">
+        <div class="card">
+            <h2>HK</h2>
+            <ul id="list-hk">Loading...</ul>
+        </div>
+        <div class="card">
+            <h2>SDY</h2>
+            <ul id="list-sdy">Loading...</ul>
+        </div>
+        <div class="card">
+            <h2>SGP</h2>
+            <ul id="list-sgp">Loading...</ul>
+        </div>
+    </div>
+
+    <script>
+        // GANTI 'username' dan 'repo' sesuai punya Koh
+        const username = "Mahasewa";
+        const repo = "mesin-bbfs";
+
+        async function ambilData(file, elementId) {
+            const url = `https://raw.githubusercontent.com/${username}/${repo}/main/${file}`;
+            try {
+                const response = await fetch(url);
+                const data = await response.text();
+                const baris = data.trim().split("\n");
+                
+                // Ambil 100 baris terakhir dan balik urutannya (terbaru di atas)
+                const barisTerakhir = baris.slice(-100).reverse();
+                
+                let html = "";
+                barisTerakhir.forEach(angka => {
+                    if(angka.trim().length >= 2) {
+                        // Ambil 2 angka terakhir
+                        const duaD = angka.trim().slice(-2);
+                        html += `<li>Full: ${angka} | <span class="angka-2d">2D: ${duaD}</span></li>`;
+                    }
+                });
+                document.getElementById(elementId).innerHTML = html;
+            } catch (error) {
+                document.getElementById(elementId).innerHTML = "Gagal ambil data";
+            }
+        }
+
+        // Jalankan fungsi
+        ambilData("data_keluaran_hk.txt", "list-hk");
+        ambilData("data_keluaran_sdy.txt", "list-sdy");
+        ambilData("data_keluaran_sgp.txt", "list-sgp");
+    </script>
+</body>
+</html>
