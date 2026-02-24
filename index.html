@@ -61,20 +61,32 @@
         let dHijau = [], dHistory = [];
 
         // Fungsi Load Tombol dari perintah.js
-        window.onload = () => {
-            const wadah = document.getElementById('wadah-fitur');
-            if(typeof daftarFitur !== 'undefined') {
-                daftarFitur.forEach(fitur => {
-                    let btn = document.createElement('button');
-                    btn.className = "btn-fitur";
-                    btn.innerText = fitur.nama;
-                    btn.id = "btn-" + fitur.id;
-                    btn.disabled = true;
-                    btn.onclick = () => runFitur(fitur.id);
-                    wadah.appendChild(btn);
-                });
-            }
-        };
+       function inisialisasiTombol() {
+    const wadah = document.getElementById('wadah-fitur');
+    
+    // Cek apakah variabel dari perintah.js sudah terbaca
+    if (typeof daftarFitur !== 'undefined') {
+        wadah.innerHTML = ""; // Bersihkan wadah agar tidak double
+        
+        daftarFitur.forEach(fitur => {
+            let btn = document.createElement('button');
+            btn.className = "btn-fitur";
+            btn.innerText = fitur.nama;
+            btn.id = "btn-" + fitur.id;
+            btn.disabled = true; // Tetap mati sampai Koh pilih pasaran
+            btn.onclick = () => runFitur(fitur.id);
+            wadah.appendChild(btn);
+        });
+        console.log("Sip! Tombol sudah muncul, Koh.");
+    } else {
+        // Jika belum terbaca, tunggu sebentar (200 milidetik) lalu cek lagi
+        console.log("Sabar Koh, lagi manggil perintah.js...");
+        setTimeout(inisialisasiTombol, 200);
+    }
+}
+
+// Perintah untuk jalankan fungsi di atas saat halaman dibuka
+window.onload = inisialisasiTombol;
 
         async function pilihPasaran(p, btn) {
             document.querySelectorAll('#menu-pasaran button').forEach(b => b.classList.remove('active'));
