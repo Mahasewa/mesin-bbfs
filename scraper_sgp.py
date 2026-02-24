@@ -12,32 +12,32 @@ options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) Apple
 driver = webdriver.Chrome(options=options)
 
 try:
-    print("Membuka Singapore Pools...")
-    # Menggunakan link mobile/result yang lebih ringan
     driver.get("https://www.singaporepools.com.sg/en/product/pages/4d_results.aspx")
-    time.sleep(20)
+    time.sleep(25)
     
-    # SGP biasanya punya class 'winning-number-1' untuk Prize 1
     try:
         element = driver.find_element(By.CLASS_NAME, "winning-number-1")
         hasil_4d = element.text.strip()
-        
-        if len(hasil_4d) == 4 and hasil_4d.isdigit():
-            print(f"SGP Berhasil: {hasil_4d}")
+    except:
+        # Cadangan jika elemen class tidak ketemu
+        elements = driver.find_elements(By.TAG_NAME, "td")
+        hasil_4d = next((el.text.strip() for el in elements if len(el.text.strip()) == 4 and el.text.strip().isdigit()), None)
+
+    if hasil_4d:
+        # LOGIKA ANTI-DUPLIKAT
+        try:
+            with open("data_keluaran_sgp.txt", "r") as f:
+                lines = f.readlines()
+                last_line = lines[-1].strip() if lines else ""
+        except FileNotFoundError:
+            last_line = ""
+
+        if hasil_4d != last_line:
             with open("data_keluaran_sgp.txt", "a") as f:
                 f.write(f"\n{hasil_4d}")
+            print(f"SGP Berhasil Simpan: {hasil_4d}")
         else:
-            print(f"SGP: Data ditemukan tapi format salah: {hasil_4d}")
-    except:
-        # Cadangan: Cari angka 4 digit di tabel mana saja
-        elements = driver.find_elements(By.TAG_NAME, "td")
-        for el in elements:
-            teks = el.text.strip()
-            if len(teks) == 4 and teks.isdigit():
-                print(f"SGP Berhasil (Cadangan): {teks}")
-                with open("data_keluaran_sgp.txt", "a") as f:
-                    f.write(f"\n{teks}")
-                break
+            print(f"SGP: Angka {hasil_4d} sudah ada, skip.")
 
 except Exception as e:
     print(f"SGP Error: {e}")
