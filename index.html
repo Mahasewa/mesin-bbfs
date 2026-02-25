@@ -77,7 +77,8 @@
             document.querySelectorAll('#menu-pasaran button').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             try {
-                const res = await fetch(`https://raw.githubusercontent.com/${user}/${repo}/main/data_keluaran_${p}.txt`);
+                // Tambahkan tanda tanya dan angka acak supaya browser selalu ambil data terbaru
+                const res = await fetch(`https://raw.githubusercontent.com/${user}/${repo}/main/data_keluaran_${p}.txt?t=${new Date().getTime()}`);
                 const txt = await res.text();
                 dHistory = txt.trim().split("\n").map(l => l.trim());
                 const last = [...dHistory].slice(-100).reverse();
