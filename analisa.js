@@ -1,70 +1,75 @@
-// JURUS PAMUNGKAS: Menggunakan CDN agar data tidak diblokir browser
 const USER = "Mahasewa";
 const REPO = "masin-bbfs";
 const BRANCH = "main";
-
-// Jalur alternatif jika jalur utama macet
 const BASE_URL = `https://cdn.jsdelivr.net/gh/${USER}/${REPO}@${BRANCH}/`;
 
 let store = { hk: [], sdy: [], sgp: [] };
 
 async function loadData() {
-    try {
-        console.log("Memulai penarikan data...");
-        
-        const files = ['data_keluaran_hk.txt', 'data_keluaran_sdy.txt', 'data_keluaran_sgp.txt'];
-        
-        // Ambil data satu per satu agar lebih stabil
-        const results = await Promise.all(files.map(async (f) => {
-            // Kita tambah timestamp agar data selalu yang terbaru (bukan cache lama)
-            const response = await fetch(BASE_URL + f + '?t=' + Date.now());
-            if (!response.ok) throw new Error("Gagal ambil file: " + f);
-            return await response.text();
-        }));
+    const files = {
+        hk: 'data_keluaran_hk.txt',
+        sdy: 'data_keluaran_sdy.txt',
+        sgp: 'data_keluaran_sgp.txt'
+    };
 
-        store.hk = bersihkan(results[0]);
-        store.sdy = bersihkan(results[1]);
-        store.sgp = bersihkan(results[2]);
-
-        console.log("Data Berhasil: ", {hk: store.hk.length, sdy: store.sdy.length, sgp: store.sgp.length});
-
-        tampilkan();
-        
-        document.getElementById('loader').classList.add('hidden');
-        document.getElementById('app').classList.remove('hidden');
-    } catch (e) {
-        console.error("Detail Error: ", e);
-        document.getElementById('loader').innerHTML = `<p class="text-red-500 font-bold">ERROR: ${e.message}</p>`;
+    // Kita coba satu-satu, kalau satu gagal, yang lain tetap jalan
+    for (let key in files) {
+        try {
+            const res = await fetch(BASE_URL + files[key] + '?t=' + Date.now());
+            if (res.ok) {
+                const text = await res.text();
+                store[key] = bersihkan(text);
+                console.log(`Berhasil muat ${key}: ${store[key].length}`);
+            } else {
+                console.warn(`File ${files[key]} tidak ditemukan di GitHub.`);
+            }
+        } catch (e) {
+            console.error(`Error fetch ${key}:`, e);
+        }
     }
+
+    tampilkan();
+    document.getElementById('loader').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
+}
+
+// FUNGSI BARU: Untuk Upload Manual jika GitHub Error
+function handleFileUpload(event, pasaran) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const text = e.target.result;
+        store[pasaran] = bersihkan(text);
+        tampilkan();
+        alert(`Berhasil upload data ${pasaran.toUpperCase()}!`);
+    };
+    reader.readAsText(file);
 }
 
 function bersihkan(raw) {
     if(!raw) return [];
-    // Logika pembersih: memecah tab, spasi, enter dan hanya ambil 4 digit angka
-    const data = raw.replace(/[^\d\s\t\n\r]/g, ' ') 
-                    .split(/[\s\t\n\r]+/)
-                    .map(v => v.trim())
-                    .filter(v => v.length === 4 && /^\d+$/.test(v));
+    // Logika sakti: ambil semua angka 4 digit dari baris/tab manapun
+    const data = raw.split(/[\s\t\n\r]+/)
+                    .map(v => v.trim().replace(/[^\d]/g, '')) // Hanya ambil angka
+                    .filter(v => v.length === 4);
     return [...new Set(data)]; 
 }
 
 function tampilkan() {
-    // Update Statistik di Layar
     document.getElementById('stat-hk').innerText = store.hk.length + " Angka";
     document.getElementById('stat-sdy').innerText = store.sdy.length + " Angka";
     document.getElementById('stat-sgp').innerText = store.sgp.length + " Angka";
 
-    // Isi Data ke dalam Box Detail (format rapat pakai bintang)
-    document.getElementById('txt-hk').innerText = store.hk.join('*') || 'Kosong';
-    document.getElementById('txt-sdy').innerText = store.sdy.join('*') || 'Kosong';
-    document.getElementById('txt-sgp').innerText = store.sgp.join('*') || 'Kosong';
+    document.getElementById('txt-hk').innerText = store.hk.join('*') || 'Belum ada data (Klik upload di bawah)';
+    document.getElementById('txt-sdy').innerText = store.sdy.join('*') || 'Belum ada data (Klik upload di bawah)';
+    document.getElementById('txt-sgp').innerText = store.sgp.join('*') || 'Belum ada data (Klik upload di bawah)';
 
-    // Logika Duplikat (Irisan 3 pasaran)
     const duplikat = store.hk.filter(v => store.sdy.includes(v) && store.sgp.includes(v));
     document.getElementById('total-duplikat').innerText = "Total: " + duplikat.length + " Angka";
     document.getElementById('txt-duplikat').innerText = duplikat.length > 0 ? duplikat.join('*') : "Tidak ada duplikat.";
 
-    // Logika Perawan (Cari yang belum ada di sejarah manapun)
     const allHistory = new Set([...store.hk, ...store.sdy, ...store.sgp]);
     let perawan = [];
     for(let i=0; i<=9999; i++) {
@@ -82,9 +87,8 @@ function bukaDetail(id) {
 
 function copy(id) {
     const txt = document.getElementById(id).innerText;
-    if(!txt || txt === 'Kosong') return;
+    if(!txt || txt.includes('Belum ada')) return;
     navigator.clipboard.writeText(txt).then(() => alert("Berhasil Salin!"));
 }
 
-// Jalankan aplikasi
 loadData();
