@@ -1,7 +1,8 @@
+// CONFIG: Pastikan nama file di GitHub sama persis (Besar/Kecil Huruf)
 const USER = "Mahasewa";
 const REPO = "masin-bbfs";
 const BRANCH = "main";
-const BASE_URL = `https://cdn.jsdelivr.net/gh/${USER}/${REPO}@${BRANCH}/`;
+const BASE_URL = `https://raw.githubusercontent.com/${USER}/${REPO}/${BRANCH}/`;
 
 let store = { hk: [], sdy: [], sgp: [] };
 
@@ -12,19 +13,20 @@ async function loadData() {
         sgp: 'data_keluaran_sgp.txt'
     };
 
-    // Kita coba satu-satu, kalau satu gagal, yang lain tetap jalan
+    // Proses pengambilan data satu per satu agar tidak macet total jika ada 1 file error
     for (let key in files) {
         try {
-            const res = await fetch(BASE_URL + files[key] + '?t=' + Date.now());
-            if (res.ok) {
-                const text = await res.text();
-                store[key] = bersihkan(text);
-                console.log(`Berhasil muat ${key}: ${store[key].length}`);
-            } else {
-                console.warn(`File ${files[key]} tidak ditemukan di GitHub.`);
+            // Gunakan AllOrigins Proxy untuk menembus blokir browser (CORS)
+            const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(BASE_URL + files[key] + '?t=' + Date.now())}`;
+            const res = await fetch(proxyUrl);
+            const json = await res.json();
+            
+            if (json.contents) {
+                store[key] = bersihkan(json.contents);
+                console.log(`Berhasil muat ${key}: ${store[key].length} Angka`);
             }
         } catch (e) {
-            console.error(`Error fetch ${key}:`, e);
+            console.warn(`Gagal otomatis menarik ${key}, silakan gunakan upload manual.`);
         }
     }
 
@@ -33,51 +35,55 @@ async function loadData() {
     document.getElementById('app').classList.remove('hidden');
 }
 
-// FUNGSI BARU: Untuk Upload Manual jika GitHub Error
-function handleFileUpload(event, pasaran) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const text = e.target.result;
-        store[pasaran] = bersihkan(text);
-        tampilkan();
-        alert(`Berhasil upload data ${pasaran.toUpperCase()}!`);
-    };
-    reader.readAsText(file);
-}
-
+// FUNGSI PEMBERSIH: Mendukung format TAB (7 deret) atau 1 baris 1 data
 function bersihkan(raw) {
     if(!raw) return [];
-    // Logika sakti: ambil semua angka 4 digit dari baris/tab manapun
     const data = raw.split(/[\s\t\n\r]+/)
-                    .map(v => v.trim().replace(/[^\d]/g, '')) // Hanya ambil angka
-                    .filter(v => v.length === 4);
-    return [...new Set(data)]; 
+                    .map(v => v.trim().replace(/[^\d]/g, '')) // Hanya ambil digit
+                    .filter(v => v.length === 4); // Harus tepat 4 digit
+    return [...new Set(data)]; // Hapus angka ganda dalam satu pasaran
 }
 
 function tampilkan() {
-    document.getElementById('stat-hk').innerText = store.hk.length + " Angka";
-    document.getElementById('stat-sdy').innerText = store.sdy.length + " Angka";
-    document.getElementById('stat-sgp').innerText = store.sgp.length + " Angka";
+    // Update Label Statistik
+    document.getElementById('stat-hk').innerText = store.hk.length + " Angka Terdeteksi";
+    document.getElementById('stat-sdy').innerText = store.sdy.length + " Angka Terdeteksi";
+    document.getElementById('stat-sgp').innerText = store.sgp.length + " Angka Terdeteksi";
 
-    document.getElementById('txt-hk').innerText = store.hk.join('*') || 'Belum ada data (Klik upload di bawah)';
-    document.getElementById('txt-sdy').innerText = store.sdy.join('*') || 'Belum ada data (Klik upload di bawah)';
-    document.getElementById('txt-sgp').innerText = store.sgp.join('*') || 'Belum ada data (Klik upload di bawah)';
+    // Update Isi Kotak Detail
+    document.getElementById('txt-hk').innerText = store.hk.join('*') || 'Data Kosong / Belum Diupload';
+    document.getElementById('txt-sdy').innerText = store.sdy.join('*') || 'Data Kosong / Belum Diupload';
+    document.getElementById('txt-sgp').innerText = store.sgp.join('*') || 'Data Kosong / Belum Diupload';
 
+    // ANALISA 1: Angka Duplikat (Irisan 3 Pasaran)
     const duplikat = store.hk.filter(v => store.sdy.includes(v) && store.sgp.includes(v));
-    document.getElementById('total-duplikat').innerText = "Total: " + duplikat.length + " Angka";
-    document.getElementById('txt-duplikat').innerText = duplikat.length > 0 ? duplikat.join('*') : "Tidak ada duplikat.";
+    document.getElementById('total-duplikat').innerText = "Total: " + duplikat.length + " Angka Sama di 3 Data";
+    document.getElementById('txt-duplikat').innerText = duplikat.length > 0 ? duplikat.join('*') : "Belum ada angka yang sama persis di ketiga data.";
 
-    const allHistory = new Set([...store.hk, ...store.sdy, ...store.sgp]);
+    // ANALISA 2: Angka Perawan (0000-9999 yang belum pernah keluar sama sekali)
+    const gabunganSemua = new Set([...store.hk, ...store.sdy, ...store.sgp]);
     let perawan = [];
     for(let i=0; i<=9999; i++) {
-        let n = i.toString().padStart(4, '0');
-        if(!allHistory.has(n)) perawan.push(n);
+        let format4D = i.toString().padStart(4, '0');
+        if(!gabunganSemua.has(format4D)) {
+            perawan.push(format4D);
+        }
     }
-    document.getElementById('total-perawan').innerText = "Total: " + perawan.length + " Angka";
+    document.getElementById('total-perawan').innerText = "Total: " + perawan.length + " Angka Belum Pernah Result";
     document.getElementById('txt-perawan').innerText = perawan.join('*');
+}
+
+// Fungsi Upload Manual (Ban Serep jika GitHub Down)
+function handleFileUpload(event, pasaran) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        store[pasaran] = bersihkan(e.target.result);
+        tampilkan();
+        alert(`Berhasil Memproses Data ${pasaran.toUpperCase()}!`);
+    };
+    reader.readAsText(file);
 }
 
 function bukaDetail(id) {
@@ -87,8 +93,8 @@ function bukaDetail(id) {
 
 function copy(id) {
     const txt = document.getElementById(id).innerText;
-    if(!txt || txt.includes('Belum ada')) return;
-    navigator.clipboard.writeText(txt).then(() => alert("Berhasil Salin!"));
+    if(!txt || txt.includes('Belum ada') || txt.includes('Kosong')) return;
+    navigator.clipboard.writeText(txt).then(() => alert("Berhasil Salin, Koh!"));
 }
 
 loadData();
