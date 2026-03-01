@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analisa Database 4D - Koh</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .code-block {
+            word-break: break-all;
+            white-space: normal;
+            background: #1e293b;
+            color: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #334155;
+            line-height: 1.6;
+        }
+        .loading-spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: #3b82f6;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-200 min-h-screen p-4 pb-10">
+
+    <div class="max-w-2xl mx-auto">
+        <h1 class="text-2xl font-bold text-center mb-6 text-blue-400">📊 ANALISA DATABASE 3 PASARAN</h1>
+        
+        <div id="loader" class="flex flex-col items-center justify-center my-10">
+            <div class="loading-spinner"></div>
+            <p class="mt-4 text-slate-400 animate-pulse">Menarik data dari GitHub...</p>
+        </div>
+
+        <div id="main-content" class="hidden space-y-4">
+            
+            <div class="bg-slate-800 p-4 rounded-lg border border-slate-700">
+                <div class="flex justify-between items-center cursor-pointer" onclick="toggleDetail('hk')">
+                    <div>
+                        <h2 class="font-bold text-lg text-yellow-500">DATA HONGKONG (HK)</h2>
+                        <p class="text-sm text-slate-400" id="stat-hk">Loading...</p>
+                    </div>
+                    <button class="bg-blue-600 hover:bg-blue-500 px-3 py-1 rounded text-xs">Lihat Angka</button>
+                </div>
+                <div id="detail-hk" class="hidden mt-4">
+                    <button onclick="copyToClipboard('code-hk')" class="mb-2 text-xs bg-slate-600 px-2 py-1 rounded hover:bg-slate-500">Salin Semua</button>
+                    <div id="code-hk" class="code-block"></div>
+                </div>
+            </div>
+
+            <div class="bg-slate-800 p-4 rounded-lg border border-slate-700">
+                <div class="flex justify-between items-center cursor-pointer" onclick="toggleDetail('sdy')">
+                    <div>
+                        <h2 class="font-bold text-lg text-blue-500">DATA SYDNEY (SDY)</h2>
+                        <p class="text-sm text-slate-400" id="stat-sdy">Loading...</p>
+                    </div>
+                    <button class="bg-blue-600 hover:bg-blue-500 px-3 py-1 rounded text-xs">Lihat Angka</button>
+                </div>
+                <div id="detail-sdy" class="hidden mt-4">
+                    <button onclick="copyToClipboard('code-sdy')" class="mb-2 text-xs bg-slate-600 px-2 py-1 rounded hover:bg-slate-500">Salin Semua</button>
+                    <div id="code-sdy" class="code-block"></div>
+                </div>
+            </div>
+
+            <div class="bg-slate-800 p-4 rounded-lg border border-slate-700">
+                <div class="flex justify-between items-center cursor-pointer" onclick="toggleDetail('sgp')">
+                    <div>
+                        <h2 class="font-bold text-lg text-green-500">DATA SINGAPORE (SGP)</h2>
+                        <p class="text-sm text-slate-400" id="stat-sgp">Loading...</p>
+                    </div>
+                    <button class="bg-blue-600 hover:bg-blue-500 px-3 py-1 rounded text-xs">Lihat Angka</button>
+                </div>
+                <div id="detail-sgp" class="hidden mt-4">
+                    <button onclick="copyToClipboard('code-sgp')" class="mb-2 text-xs bg-slate-600 px-2 py-1 rounded hover:bg-slate-500">Salin Semua</button>
+                    <div id="code-sgp" class="code-block"></div>
+                </div>
+            </div>
+
+            <hr class="border-slate-700 my-6">
+
+            <div class="bg-indigo-900/30 p-4 rounded-lg border border-indigo-500/50">
+                <h2 class="font-bold text-xl text-indigo-400 mb-2">💎 ANGKA DUPLIKAT (3 PASARAN)</h2>
+                <p class="text-xs text-slate-400 mb-4 italic">Angka yang sudah pernah keluar di HK, SDY, sekaligus SGP.</p>
+                <button onclick="copyToClipboard('code-duplikat')" class="mb-2 text-xs bg-indigo-600 px-2 py-1 rounded hover:bg-indigo-500">Salin Semua</button>
+                <div id="code-duplikat" class="code-block text-indigo-200">Menghitung...</div>
+            </div>
+
+            <div class="bg-rose-900/30 p-4 rounded-lg border border-rose-500/50">
+                <h2 class="font-bold text-xl text-rose-400 mb-2">🔥 ANGKA PERAWAN (BELUM KELUAR)</h2>
+                <p class="text-xs text-slate-400 mb-4 italic">Angka 4D (0000-9999) yang sama sekali belum pernah muncul di 3 data tersebut.</p>
+                <button onclick="copyToClipboard('code-perawan')" class="mb-2 text-xs bg-rose-600 px-2 py-1 rounded hover:bg-rose-500">Salin Semua</button>
+                <div id="code-perawan" class="code-block text-rose-200">Menghitung...</div>
+            </div>
+
+            <div class="text-center text-slate-500 text-[10px] pt-10">
+                Automated Database Analysis for Koh - 2026
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const username = "Mahasewa";
+        const repo = "masin-bbfs";
+        const branch = "main"; // Pastikan branch Koh namanya 'main' atau 'master'
+
+        const urls = {
+            hk: `https://raw.githubusercontent.com/${username}/${repo}/${branch}/data_keluaran_hk.txt`,
+            sdy: `https://raw.githubusercontent.com/${username}/${repo}/${branch}/data_keluaran_sdy.txt`,
+            sgp: `https://raw.githubusercontent.com/${username}/${repo}/${branch}/data_keluaran_sgp.txt`
+        };
+
+        let dataGlobal = { hk: [], sdy: [], sgp: [] };
+
+        async function init() {
+            try {
+                // Fetch data secara parallel
+                const [resHk, resSdy, resSgp] = await Promise.all([
+                    fetch(urls.hk).then(r => r.text()),
+                    fetch(urls.sdy).then(r => r.text()),
+                    fetch(urls.sgp).then(r => r.text())
+                ]);
+
+                dataGlobal.hk = cleanData(resHk);
+                dataGlobal.sdy = cleanData(resSdy);
+                dataGlobal.sgp = cleanData(resSgp);
+
+                displayStats();
+                processAnalysis();
+
+                document.getElementById('loader').classList.add('hidden');
+                document.getElementById('main-content').classList.remove('hidden');
+            } catch (error) {
+                alert("Gagal menarik data dari GitHub. Pastikan link Raw benar.");
+                console.error(error);
+            }
+        }
+
+        function cleanData(raw) {
+            // Memecah berdasarkan baris, tab, atau spasi ganda
+            // Hanya mengambil angka yang tepat 4 digit
+            const cleaned = raw.split(/[\r\n\t\s]+/)
+                               .filter(item => /^\d{4}$/.test(item.trim()));
+            return [...new Set(cleaned)]; // Hapus duplikat internal per pasaran
+        }
+
+        function displayStats() {
+            document.getElementById('stat-hk').innerText = `Total: ${dataGlobal.hk.length} Angka Unik`;
+            document.getElementById('stat-sdy').innerText = `Total: ${dataGlobal.sdy.length} Angka Unik`;
+            document.getElementById('stat-sgp').innerText = `Total: ${dataGlobal.sgp.length} Angka Unik`;
+
+            document.getElementById('code-hk').innerText = dataGlobal.hk.join('*');
+            document.getElementById('code-sdy').innerText = dataGlobal.sdy.join('*');
+            document.getElementById('code-sgp').innerText = dataGlobal.sgp.join('*');
+        }
+
+        function processAnalysis() {
+            const allHistory = new Set([...dataGlobal.hk, ...dataGlobal.sdy, ...dataGlobal.sgp]);
+
+            // 1. Cari Duplikat (Irisan 3 pasaran)
+            const duplikat = dataGlobal.hk.filter(num => 
+                dataGlobal.sdy.includes(num) && dataGlobal.sgp.includes(num)
+            );
+            document.getElementById('code-duplikat').innerText = duplikat.length > 0 ? duplikat.join('*') : "Tidak ada angka yang sama di ketiga pasaran.";
+
+            // 2. Cari Angka Perawan (0000 - 9999)
+            let perawan = [];
+            for (let i = 0; i <= 9999; i++) {
+                let num = i.toString().padStart(4, '0');
+                if (!allHistory.has(num)) {
+                    perawan.push(num);
+                }
+            }
+            document.getElementById('code-perawan').innerText = perawan.join('*');
+        }
+
+        function toggleDetail(id) {
+            const el = document.getElementById(`detail-${id}`);
+            el.classList.toggle('hidden');
+        }
+
+        function copyToClipboard(id) {
+            const text = document.getElementById(id).innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                alert("Berhasil disalin ke Clipboard!");
+            });
+        }
+
+        init();
+    </script>
+</body>
+</html>
