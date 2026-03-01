@@ -105,35 +105,30 @@
     </div>
 
     <script>
-    const config = {
-        // GANTI BAGIAN INI JIKA BRANCH ANDA BUKAN 'main'
-        baseUrl: "https://raw.githubusercontent.com/Mahasewa/masin-bbfs/main/",
-        files: {
-            hk: 'data_keluaran_hk.txt',
-            sdy: 'data_keluaran_sdy.txt',
-            sgp: 'data_keluaran_sgp.txt'
+    async function ambilDataOtomatis(namaFile) {
+        const branches = ['main', 'master']; // Dia akan coba dua-duanya
+        for (let br of branches) {
+            try {
+                const url = `https://raw.githubusercontent.com/Mahasewa/masin-bbfs/${br}/${namaFile}?t=${new Date().getTime()}`;
+                const res = await fetch(url);
+                if (res.ok) return await res.text();
+            } catch (e) { continue; }
         }
-    };
+        return null;
+    }
 
-    let dataFinal = { hk: [], sdy: [], sgp: [] };
-
+    // Fungsi jalankanAnalisa tinggal memanggil fungsi di atas
     async function jalankanAnalisa() {
         try {
-            // Mengambil data dengan penanganan error yang lebih detail
-            const results = await Promise.all(
-                Object.values(config.files).map(async (file) => {
-                    const response = await fetch(config.baseUrl + file + '?t=' + new Date().getTime()); // Tambah t agar tidak kena cache
-                    if (!response.ok) throw new Error("File " + file + " tidak ditemukan");
-                    return await response.text();
-                })
-            );
+            const resHk = await ambilDataOtomatis('data_keluaran_hk.txt');
+            const resSdy = await ambilDataOtomatis('data_keluaran_sdy.txt');
+            const resSgp = await ambilDataOtomatis('data_keluaran_sgp.txt');
 
-            dataFinal.hk = bersihkanData(results[0]);
-            dataFinal.sdy = bersihkanData(results[1]);
-            dataFinal.sgp = bersihkanData(results[2]);
+            if (!resHk || !resSdy || !resSgp) throw new Error("File tidak ditemukan di main maupun master");
 
-            // Jika hasil masih 0, tampilkan peringatan di konsol
-            console.log("Data Berhasil Dimuat:", dataFinal);
+            dataFinal.hk = bersihkanData(resHk);
+            dataFinal.sdy = bersihkanData(resSdy);
+            dataFinal.sgp = bersihkanData(resSgp);
 
             updateTampilanStatistik();
             prosesLogikaAnalisa();
@@ -141,71 +136,9 @@
             document.getElementById('loader').classList.add('hidden');
             document.getElementById('main-content').classList.remove('hidden');
         } catch (err) {
-            console.error("Error Detail:", err);
-            document.getElementById('loader').innerHTML = `
-                <div class="text-center p-4">
-                    <p class="text-red-500 font-bold">ERROR: GAGAL AMBIL DATA</p>
-                    <p class="text-xs text-slate-400 mt-2">${err.message}</p>
-                    <p class="text-[10px] mt-4">Pastikan link github Koh bersifat PUBLIC dan nama branch benar.</p>
-                </div>
-            `;
+            // Tampilkan error jika benar-benar buntu
         }
     }
-
-    function bersihkanData(teksRaw) {
-        if (!teksRaw) return [];
-        // Membersihkan karakter aneh, memecah berdasarkan spasi/tab/enter
-        // Lalu filter hanya yang benar-benar 4 digit angka
-        const kumpul = teksRaw.replace(/[^\d\s\t\n\r]/g, ' ') // Hapus karakter non-angka kecuali pemisah
-                             .split(/[\s\t\n\r]+/)
-                             .map(item => item.trim())
-                             .filter(item => item.length === 4 && /^\d+$/.test(item));
-        
-        return [...new Set(kumpul)]; // Unik agar tidak dobel
-    }
-
-    function updateTampilanStatistik() {
-        document.getElementById('stat-hk').innerText = `✅ Terdata: ${dataFinal.hk.length} Angka`;
-        document.getElementById('stat-sdy').innerText = `✅ Terdata: ${dataFinal.sdy.length} Angka`;
-        document.getElementById('stat-sgp').innerText = `✅ Terdata: ${dataFinal.sgp.length} Angka`;
-
-        document.getElementById('code-hk').innerText = dataFinal.hk.length > 0 ? dataFinal.hk.join('*') : 'Kosong';
-        document.getElementById('code-sdy').innerText = dataFinal.sdy.length > 0 ? dataFinal.sdy.join('*') : 'Kosong';
-        document.getElementById('code-sgp').innerText = dataFinal.sgp.length > 0 ? dataFinal.sgp.join('*') : 'Kosong';
-    }
-
-    function prosesLogikaAnalisa() {
-        const masterSet = new Set([...dataFinal.hk, ...dataFinal.sdy, ...dataFinal.sgp]);
-
-        const irisan = dataFinal.hk.filter(x => dataFinal.sdy.includes(x) && dataFinal.sgp.includes(x));
-        document.getElementById('count-duplikat').innerText = `Total: ${irisan.length} Angka (Muncul di semua pasaran)`;
-        document.getElementById('code-duplikat').innerText = irisan.length > 0 ? irisan.join('*') : "Belum ada angka duplikat.";
-
-        let listPerawan = [];
-        for (let i = 0; i <= 9999; i++) {
-            let formatted = i.toString().padStart(4, '0');
-            if (!masterSet.has(formatted)) {
-                listPerawan.push(formatted);
-            }
-        }
-        document.getElementById('count-perawan').innerText = `Total: ${listPerawan.length} Angka Belum Pernah Keluar`;
-        document.getElementById('code-perawan').innerText = listPerawan.join('*');
-    }
-
-    function toggleDetail(id) {
-        const el = document.getElementById(`detail-${id}`);
-        el.classList.toggle('hidden');
-    }
-
-    function copyToClipboard(id) {
-        const text = document.getElementById(id).innerText;
-        if(!text || text.includes("Menghitung")) return;
-        navigator.clipboard.writeText(text).then(() => {
-            alert("Berhasil disalin!");
-        });
-    }
-
-    jalankanAnalisa();
 </script>
 </body>
 </html>
