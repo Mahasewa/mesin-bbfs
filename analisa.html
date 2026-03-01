@@ -3,142 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analisa Database 4D - Koh</title>
+    <title>Analisa Database 4D</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .code-block {
             word-break: break-all;
             white-space: normal;
-            background: #1e293b;
-            color: #f8fafc;
+            background: #0f172a;
+            color: #94a3b8;
             padding: 15px;
             border-radius: 8px;
             font-family: monospace;
             max-height: 300px;
             overflow-y: auto;
-            border: 1px solid #334155;
-            line-height: 1.8;
-            font-size: 14px;
+            border: 1px solid #1e293b;
+            line-height: 2;
         }
-        .loading-spinner {
-            border: 4px solid rgba(255, 255, 255, 0.1);
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            border-left-color: #3b82f6;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
-<body class="bg-slate-900 text-slate-200 min-h-screen p-4 pb-10">
-
+<body class="bg-slate-950 text-slate-200 p-4">
     <div class="max-w-2xl mx-auto">
-        <h1 class="text-2xl font-bold text-center mb-6 text-blue-400 border-b border-slate-700 pb-4">📊 ANALISA DATABASE 4D</h1>
-        
-        <div id="loader" class="flex flex-col items-center justify-center my-20">
-            <div class="loading-spinner"></div>
-            <p class="mt-4 text-slate-400 animate-pulse text-sm">Sedang sinkronisasi data GitHub...</p>
-        </div>
+        <h1 class="text-xl font-bold text-center mb-6 text-blue-400">📊 PANEL ANALISA DATABASE</h1>
 
-        <div id="main-content" class="hidden space-y-4">
-            
-            <div class="bg-slate-800 p-4 rounded-lg border border-slate-700 shadow-lg">
-                <div class="flex justify-between items-center cursor-pointer" onclick="toggleDetail('hk')">
-                    <div>
-                        <h2 class="font-bold text-lg text-yellow-500">DATA HONGKONG (HK)</h2>
-                        <p class="text-sm font-semibold text-emerald-400" id="stat-hk">Menghitung...</p>
+        <div id="loader" class="text-center my-10 text-slate-500 animate-pulse">Menghubungkan ke GitHub...</div>
+
+        <div id="app" class="hidden space-y-4">
+            <div class="grid grid-cols-1 gap-3">
+                <div class="bg-slate-900 p-4 rounded-lg border border-slate-800 shadow-md">
+                    <div class="flex justify-between items-center cursor-pointer" onclick="bukaDetail('hk')">
+                        <div>
+                            <p class="text-xs font-bold text-slate-500">HONGKONG</p>
+                            <p class="text-lg font-bold text-yellow-500" id="stat-hk">0 Angka</p>
+                        </div>
+                        <button class="text-[10px] bg-slate-800 px-2 py-1 rounded">LIHAT</button>
                     </div>
-                    <button class="bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded text-[10px] uppercase tracking-wider font-bold text-slate-300">Detail</button>
-                </div>
-                <div id="detail-hk" class="hidden mt-4 pt-4 border-t border-slate-700">
-                    <button onclick="copyToClipboard('code-hk')" class="mb-3 w-full text-xs bg-blue-600 py-2 rounded font-bold hover:bg-blue-500 transition">SALIN DATA HK</button>
-                    <div id="code-hk" class="code-block"></div>
-                </div>
-            </div>
-
-            <div class="bg-slate-800 p-4 rounded-lg border border-slate-700 shadow-lg">
-                <div class="flex justify-between items-center cursor-pointer" onclick="toggleDetail('sdy')">
-                    <div>
-                        <h2 class="font-bold text-lg text-blue-500">DATA SYDNEY (SDY)</h2>
-                        <p class="text-sm font-semibold text-emerald-400" id="stat-sdy">Menghitung...</p>
+                    <div id="box-hk" class="hidden mt-4">
+                        <button onclick="copy('txt-hk')" class="w-full bg-blue-600 text-[10px] font-bold py-2 rounded mb-2">SALIN DATA HK</button>
+                        <div id="txt-hk" class="code-block"></div>
                     </div>
-                    <button class="bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded text-[10px] uppercase tracking-wider font-bold text-slate-300">Detail</button>
                 </div>
-                <div id="detail-sdy" class="hidden mt-4 pt-4 border-t border-slate-700">
-                    <button onclick="copyToClipboard('code-sdy')" class="mb-3 w-full text-xs bg-blue-600 py-2 rounded font-bold hover:bg-blue-500 transition">SALIN DATA SDY</button>
-                    <div id="code-sdy" class="code-block"></div>
-                </div>
-            </div>
 
-            <div class="bg-slate-800 p-4 rounded-lg border border-slate-700 shadow-lg">
-                <div class="flex justify-between items-center cursor-pointer" onclick="toggleDetail('sgp')">
-                    <div>
-                        <h2 class="font-bold text-lg text-green-500">DATA SINGAPORE (SGP)</h2>
-                        <p class="text-sm font-semibold text-emerald-400" id="stat-sgp">Menghitung...</p>
+                <div class="bg-slate-900 p-4 rounded-lg border border-slate-800 shadow-md">
+                    <div class="flex justify-between items-center cursor-pointer" onclick="bukaDetail('sdy')">
+                        <div>
+                            <p class="text-xs font-bold text-slate-500">SYDNEY</p>
+                            <p class="text-lg font-bold text-blue-500" id="stat-sdy">0 Angka</p>
+                        </div>
+                        <button class="text-[10px] bg-slate-800 px-2 py-1 rounded">LIHAT</button>
                     </div>
-                    <button class="bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded text-[10px] uppercase tracking-wider font-bold text-slate-300">Detail</button>
+                    <div id="box-sdy" class="hidden mt-4">
+                        <button onclick="copy('txt-sdy')" class="w-full bg-blue-600 text-[10px] font-bold py-2 rounded mb-2">SALIN DATA SDY</button>
+                        <div id="txt-sdy" class="code-block"></div>
+                    </div>
                 </div>
-                <div id="detail-sgp" class="hidden mt-4 pt-4 border-t border-slate-700">
-                    <button onclick="copyToClipboard('code-sgp')" class="mb-3 w-full text-xs bg-blue-600 py-2 rounded font-bold hover:bg-blue-500 transition">SALIN DATA SGP</button>
-                    <div id="code-sgp" class="code-block"></div>
+
+                <div class="bg-slate-900 p-4 rounded-lg border border-slate-800 shadow-md">
+                    <div class="flex justify-between items-center cursor-pointer" onclick="bukaDetail('sgp')">
+                        <div>
+                            <p class="text-xs font-bold text-slate-500">SINGAPORE</p>
+                            <p class="text-lg font-bold text-green-500" id="stat-sgp">0 Angka</p>
+                        </div>
+                        <button class="text-[10px] bg-slate-800 px-2 py-1 rounded">LIHAT</button>
+                    </div>
+                    <div id="box-sgp" class="hidden mt-4">
+                        <button onclick="copy('txt-sgp')" class="w-full bg-blue-600 text-[10px] font-bold py-2 rounded mb-2">SALIN DATA SGP</button>
+                        <div id="txt-sgp" class="code-block"></div>
+                    </div>
                 </div>
             </div>
 
-            <div class="py-4"></div>
-
-            <div class="bg-indigo-900/40 p-5 rounded-xl border border-indigo-500/50 shadow-xl">
-                <h2 class="font-black text-xl text-indigo-300 mb-1">💎 DUPLIKAT (3 PASARAN)</h2>
-                <p id="count-duplikat" class="text-xs text-indigo-400 font-bold mb-4 italic">Total: 0 Angka</p>
-                <button onclick="copyToClipboard('code-duplikat')" class="mb-3 w-full text-xs bg-indigo-600 py-2 rounded font-bold hover:bg-indigo-500">SALIN DUPLIKAT</button>
-                <div id="code-duplikat" class="code-block border-indigo-800/50"></div>
+            <div class="bg-indigo-950/20 p-5 rounded-xl border border-indigo-500/30">
+                <h2 class="font-bold text-indigo-400">💎 DUPLIKAT (SAMA DI 3 PASARAN)</h2>
+                <p id="total-duplikat" class="text-[10px] text-slate-500 mb-3">Total: 0</p>
+                <div id="txt-duplikat" class="code-block border-indigo-500/10 text-indigo-300"></div>
             </div>
 
-            <div class="bg-rose-900/40 p-5 rounded-xl border border-rose-500/50 shadow-xl">
-                <h2 class="font-black text-xl text-rose-300 mb-1">🔥 ANGKA PERAWAN</h2>
-                <p id="count-perawan" class="text-xs text-rose-400 font-bold mb-4 italic">Total: 0 Angka</p>
-                <button onclick="copyToClipboard('code-perawan')" class="mb-3 w-full text-xs bg-rose-600 py-2 rounded font-bold hover:bg-rose-500">SALIN PERAWAN</button>
-                <div id="code-perawan" class="code-block border-rose-800/50"></div>
+            <div class="bg-rose-950/20 p-5 rounded-xl border border-rose-500/30">
+                <h2 class="font-bold text-rose-400">🔥 ANGKA PERAWAN (BELUM RESULT)</h2>
+                <p id="total-perawan" class="text-[10px] text-slate-500 mb-3">Total: 0</p>
+                <div id="txt-perawan" class="code-block border-rose-500/10 text-rose-300"></div>
             </div>
-
         </div>
     </div>
 
-    <script>
-    async function ambilDataOtomatis(namaFile) {
-        const branches = ['main', 'master']; // Dia akan coba dua-duanya
-        for (let br of branches) {
-            try {
-                const url = `https://raw.githubusercontent.com/Mahasewa/masin-bbfs/${br}/${namaFile}?t=${new Date().getTime()}`;
-                const res = await fetch(url);
-                if (res.ok) return await res.text();
-            } catch (e) { continue; }
-        }
-        return null;
-    }
-
-    // Fungsi jalankanAnalisa tinggal memanggil fungsi di atas
-    async function jalankanAnalisa() {
-        try {
-            const resHk = await ambilDataOtomatis('data_keluaran_hk.txt');
-            const resSdy = await ambilDataOtomatis('data_keluaran_sdy.txt');
-            const resSgp = await ambilDataOtomatis('data_keluaran_sgp.txt');
-
-            if (!resHk || !resSdy || !resSgp) throw new Error("File tidak ditemukan di main maupun master");
-
-            dataFinal.hk = bersihkanData(resHk);
-            dataFinal.sdy = bersihkanData(resSdy);
-            dataFinal.sgp = bersihkanData(resSgp);
-
-            updateTampilanStatistik();
-            prosesLogikaAnalisa();
-
-            document.getElementById('loader').classList.add('hidden');
-            document.getElementById('main-content').classList.remove('hidden');
-        } catch (err) {
-            // Tampilkan error jika benar-benar buntu
-        }
-    }
-</script>
+    <script src="analisa.js"></script>
 </body>
 </html>
