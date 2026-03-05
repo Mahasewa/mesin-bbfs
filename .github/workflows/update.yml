@@ -24,7 +24,7 @@ jobs:
         run: python scraper_sgp.py || echo "SGP belum jamnya"
         
       - name: Jalankan HK
-        run: python scraper.py || echo "HK belum jamnya"
+        run: python scraper_hk.py || echo "HK belum jamnya"
 
       - name: Push Perubahan
         run: |
