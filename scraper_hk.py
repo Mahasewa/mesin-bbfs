@@ -46,8 +46,8 @@ def scrape_hk(url, name):
 # --- MAIN PROGRAM ---
 # Link 1: Utama, Link 2: Backup
 targets = [
-    {"name": "Link IP Backup", "url": "http://188.166.180.129/live-draw-hk.php"}
-    {"name": "Hongkongpools", "url": "https://www.hongkongpools.com/"},
+    {"name": "Link IP", "url": "http://188.166.180.129/live-draw-hk.php"}
+    {"name": "Hongkongpools Backup", "url": "https://www.hongkongpools.com/"},
 ]
 
 hasil_4d = None
