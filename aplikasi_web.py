@@ -29,23 +29,26 @@ def get_kombinasi(input_digits, digit_count, data_ada):
     
     return acak, berurutan, panas
 
-def get_kembar_strict(input_digits, tipe, data_ada):
+def get_kembar_strict_v2(input_digits, tipe, data_ada):
     # Menghasilkan semua kombinasi 4 digit
     hasil_raw = ["".join(p) for p in itertools.product(input_digits, repeat=4)]
-    final = []
+    
+    semua_kembar = []
     for h in hasil_raw:
         counts = [h.count(d) for d in set(h)]
         max_c = max(counts)
         
-        # Filter berdasarkan tipe kembar DAN pastikan belum pernah keluar (tidak ada di data_ada)
-        if tipe == 2: # TWIN
-            if max_c == 2 and h not in data_ada: final.append(h)
-        elif tipe == 3: # TRIPLE
-            if max_c == 3 and h not in data_ada: final.append(h)
-        elif tipe == 4: # QUAD
-            if max_c == 4 and h not in data_ada: final.append(h)
-            
-    return sorted(list(set(final)))
+        # Filter berdasarkan tipe kembar
+        if (tipe == 2 and max_c == 2) or (tipe == 3 and max_c == 3) or (tipe == 4 and max_c == 4):
+            semua_kembar.append(h)
+    
+    semua_kembar = sorted(list(set(semua_kembar)))
+    
+    # Pisahkan mana yang bersih (aman) dan mana yang panas
+    aman = [a for a in semua_kembar if a not in data_ada]
+    panas = [a for a in semua_kembar if a in data_ada]
+    
+    return aman, panas
 
 def kelompokkan_twin(daftar_angka):
     kelompok = {}
@@ -183,27 +186,30 @@ if tombol_proses and input_bbfs:
     
     # 4. Proses Kembar (Strict) & Cek Data Panas
     if show_twin:
-        res_twin = get_kembar_strict(input_bbfs, 2, data_ada)
-        if res_twin:
-            st.subheader(f"📊 TOTAL TWIN 4D ({len(res_twin)} Line)")
+        # Panggil fungsi baru
+        aman_twin, panas_twin = get_kembar_strict_v2(input_bbfs, 2, data_ada)
+        
+        if aman_twin:
+            st.subheader(f"📊 TOTAL TWIN 4D ({len(aman_twin)} Line)")
             
-            # Kita kelompokkan dulu
-            data_kelompok = kelompokkan_twin(res_twin)
+            # Kelompokkan hanya yang aman
+            data_kelompok = kelompokkan_twin(aman_twin)
             
-            # Tampilkan per pola
             for pola, daftar in data_kelompok.items():
                 with st.expander(f"🔹 POLA {pola} ({len(daftar)} Line)"):
                     st.code("*".join(daftar))
-                    
-                    # Cek Data Panas per pola ini
-                    p_twin = [a for a in daftar if a in data_ada]
-                    if p_twin:
-                        st.error(f"🔥 DATA PANAS DI POLA {pola}: {', '.join(p_twin)}")
+        
+        # Tampilkan data panas di luar expander agar tetap terlihat
+        if panas_twin:
+            st.error(f"🔥 DATA PANAS DITEMUKAN: {', '.join(panas_twin)}")
+        else:
+            st.success("✅ Tidak ada data panas di pola ini.")
 
 elif tombol_proses and not input_bbfs:
     st.error("Isi angkanya dulu Koh!")
 
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
+
 
 
 
