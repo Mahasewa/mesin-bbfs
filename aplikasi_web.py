@@ -161,49 +161,48 @@ try:
 except:
     data_ada = set()
 
-# --- EKSEKUSI ---
-    if tombol_proses and input_bbfs:
-        st.write("Tombol ditekan dan input terdeteksi!")
-        # 1. Kumpulkan semua hasil ke dalam satu wadah
-        data_hasil = []
+# --- EKSEKUSI --- (Mulai baris 167)
+if tombol_proses and input_bbfs:
+    # 1. Kumpulkan semua hasil ke dalam satu wadah
+    data_hasil = []
+    
+    # Proses 4D (dengan filter eliminasi)
+    if show_4d:
+        a4, b4, p4 = get_kombinasi(input_bbfs, 4, data_ada)
+        data_hasil.extend([a for a in a4 if not is_tereliminasi(a, f_as, f_kop, f_kep, f_ekor)])
         
-        # Proses 4D (dengan filter eliminasi)
-        if show_4d:
-            a4, b4, p4 = get_kombinasi(input_bbfs, 4, data_ada)
-            data_hasil.extend([a for a in a4 if not is_tereliminasi(a, f_as, f_kop, f_kep, f_ekor)])
-            
-        # Proses 3D
-        if show_3d:
-            a3, b3, p3 = get_kombinasi(input_bbfs, 3, data_ada)
-            data_hasil.extend([a for a in a3 if not is_tereliminasi(a, f_as, f_kop, f_kep, f_ekor)])
-            
-        # Proses 2D
-        if show_2d:
-            a2, b2, p2 = get_kombinasi(input_bbfs, 2, data_ada)
-            data_hasil.extend([a for a in a2 if not is_tereliminasi(a, f_as, f_kop, f_kep, f_ekor)])
-
-        # 2. Tampilkan dengan TABS
-        tab1, tab2 = st.tabs(["📋 Tampilan Per Blok (Default)", "📄 Tampilan List (Full)"])
+    # Proses 3D
+    if show_3d:
+        a3, b3, p3 = get_kombinasi(input_bbfs, 3, data_ada)
+        data_hasil.extend([a for a in a3 if not is_tereliminasi(a, f_as, f_kop, f_kep, f_ekor)])
         
-        with tab1:
-            if data_hasil:
-                st.subheader(f"📊 HASIL AKHIR ({len(data_hasil)} Line)")
-                for i in range(0, len(data_hasil), 300):
-                    akhir = i + 300
-                    with st.expander(f"📦 BLOK ({i+1} - {min(akhir, len(data_hasil))})"):
-                        st.code("*".join(data_hasil[i:akhir]))
-            else:
-                st.warning("Tidak ada hasil yang cocok dengan filter.")
+    # Proses 2D
+    if show_2d:
+        a2, b2, p2 = get_kombinasi(input_bbfs, 2, data_ada)
+        data_hasil.extend([a for a in a2 if not is_tereliminasi(a, f_as, f_kop, f_kep, f_ekor)])
 
-        with tab2:
-            st.subheader("📝 LIST LENGKAP (Tanpa Blok)")
-            st.code("*".join(data_hasil))
+    # 2. Tampilkan dengan TABS
+    tab1, tab2 = st.tabs(["📋 Tampilan Per Blok (Default)", "📄 Tampilan List (Full)"])
+    
+    with tab1:
+        if data_hasil:
+            st.subheader(f"📊 HASIL AKHIR ({len(data_hasil)} Line)")
+            for i in range(0, len(data_hasil), 300):
+                akhir = i + 300
+                with st.expander(f"📦 BLOK ({i+1} - {min(akhir, len(data_hasil))})"):
+                    st.code("*".join(data_hasil[i:akhir])) # Pastikan menjorok ke dalam
+        else:
+            st.warning("Tidak ada hasil yang cocok dengan filter.")
 
-    # Ini adalah bagian yang menyebabkan error di foto tadi, pastikan sejajar dengan 'if' di atas
-    elif tombol_proses and not input_bbfs:
-        st.error("Isi angkanya dulu Koh!")
+    with tab2:
+        st.subheader("📝 LIST LENGKAP (Tanpa Blok)")
+        st.code("*".join(data_hasil))
+
+elif tombol_proses and not input_bbfs:
+    st.error("Isi angkanya dulu Koh!")
 
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
+
 
 
 
