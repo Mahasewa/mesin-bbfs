@@ -15,7 +15,7 @@ def get_driver():
     service = Service(ChromeDriverManager().install())
     return webdriver.Chrome(service=service, options=options)
 
-def scrape_sdy(url, name):
+def scrape_hk(url, name):
     driver = get_driver()
     try:
         print(f"Mencoba mengambil data dari {name}...")
