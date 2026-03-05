@@ -161,47 +161,52 @@ try:
 except:
     data_ada = set()
 
-# --- EKSEKUSI --- (Mulai baris 167)
-if tombol_proses and input_bbfs:
-    # 1. Kumpulkan semua hasil ke dalam satu wadah
-    data_hasil = []
-    
-    # Proses 4D (dengan filter eliminasi)
-    if show_4d:
-        a4, b4, p4 = get_kombinasi(input_bbfs, 4, data_ada)
-        data_hasil.extend([a for a in a4 if not is_tereliminasi(a, f_as, f_kop, f_kep, f_ekor)])
+# --- EKSEKUSI ---
+    if tombol_proses and input_bbfs:
+        # 1. Wadah utama
+        data_hasil = []
+        semua_panas = [] # Wadah untuk menampung data panas dari semua mode
         
-    # Proses 3D
-    if show_3d:
-        a3, b3, p3 = get_kombinasi(input_bbfs, 3, data_ada)
-        data_hasil.extend([a for a in a3 if not is_tereliminasi(a, f_as, f_kop, f_kep, f_ekor)])
+        # Proses 4D, 3D, 2D
+        for mode, count in [("4D", 4), ("3D", 3), ("2D", 2)]:
+            if (mode == "4D" and show_4d) or (mode == "3D" and show_3d) or (mode == "2D" and show_2d):
+                a, b, p = get_kombinasi(input_bbfs, count, data_ada)
+                data_hasil.extend([x for x in a if not is_tereliminasi(x, f_as, f_kop, f_kep, f_ekor)])
+                semua_panas.extend(p)
+
+        # Proses Twin (Strict)
+        if show_twin:
+            aman_t, panas_t = get_kembar_strict_v2(input_bbfs, 2, data_ada)
+            aman_t_f = [x for x in aman_t if not is_tereliminasi(x, f_as, f_kop, f_kep, f_ekor)]
+            data_hasil.extend(aman_t_f)
+            semua_panas.extend(panas_t)
+
+        # 2. Tampilkan dengan TABS
+        tab1, tab2 = st.tabs(["📋 Tampilan Per Blok (Default)", "📄 Tampilan List (Full)"])
         
-    # Proses 2D
-    if show_2d:
-        a2, b2, p2 = get_kombinasi(input_bbfs, 2, data_ada)
-        data_hasil.extend([a for a in a2 if not is_tereliminasi(a, f_as, f_kop, f_kep, f_ekor)])
+        with tab1:
+            if data_hasil:
+                st.subheader(f"📊 HASIL AKHIR ({len(data_hasil)} Line)")
+                for i in range(0, len(data_hasil), 300):
+                    akhir = i + 300
+                    with st.expander(f"📦 BLOK ({i+1} - {min(akhir, len(data_hasil))})"):
+                        st.code("*".join(data_hasil[i:akhir]))
+            
+            # Tampilkan Data Panas di sini agar tetap terlihat
+            if semua_panas:
+                st.error(f"🔥 DATA PANAS DITEMUKAN: {', '.join(set(semua_panas))}")
+            else:
+                st.success("✅ Tidak ada data panas.")
 
-    # 2. Tampilkan dengan TABS
-    tab1, tab2 = st.tabs(["📋 Tampilan Per Blok (Default)", "📄 Tampilan List (Full)"])
-    
-    with tab1:
-        if data_hasil:
-            st.subheader(f"📊 HASIL AKHIR ({len(data_hasil)} Line)")
-            for i in range(0, len(data_hasil), 300):
-                akhir = i + 300
-                with st.expander(f"📦 BLOK ({i+1} - {min(akhir, len(data_hasil))})"):
-                    st.code("*".join(data_hasil[i:akhir])) # Pastikan menjorok ke dalam
-        else:
-            st.warning("Tidak ada hasil yang cocok dengan filter.")
-
-    with tab2:
-        st.subheader("📝 LIST LENGKAP (Tanpa Blok)")
-        st.code("*".join(data_hasil))
+        with tab2:
+            st.subheader("📝 LIST LENGKAP (Tanpa Blok)")
+            st.code("*".join(data_hasil))
 
 elif tombol_proses and not input_bbfs:
     st.error("Isi angkanya dulu Koh!")
 
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
+
 
 
 
