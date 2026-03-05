@@ -204,10 +204,11 @@ except:
         st.subheader("📝 LIST LENGKAP (Tanpa Blok)")
         st.code("*".join(data_hasil))
 
-elif tombol_proses and not input_bbfs:
+    elif tombol_proses and not input_bbfs:
     st.error("Isi angkanya dulu Koh!")
 
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
+
 
 
 
