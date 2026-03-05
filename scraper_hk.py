@@ -52,7 +52,7 @@ targets = [
 
 hasil_4d = None
 for target in targets:
-    hasil_4d = scraper_hk(target['url'], target['name'])
+    hasil_4d = scrape_hk(target['url'], target['name'])
     if hasil_4d:
         print(f"Berhasil mendapatkan data dari {target['name']}: {hasil_4d}")
         break
