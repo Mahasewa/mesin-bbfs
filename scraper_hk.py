@@ -1,61 +1,78 @@
 import time
+import re
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
+from webdriver_manager.chrome import ChromeDriverManager
 
-options = Options()
-options.add_argument("--headless")
-options.add_argument("--no-sandbox")
-options.add_argument("--disable-dev-shm-usage")
-# Menyamarkan bot agar terlihat seperti browser Chrome biasa
-options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
+def get_driver():
+    options = Options()
+    options.add_argument("--headless")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
+    service = Service(ChromeDriverManager().install())
+    return webdriver.Chrome(service=service, options=options)
 
-driver = webdriver.Chrome(options=options)
-
-try:
-    print("Sedang menyambung ke Hongkong Pools...")
-    driver.get("https://www.hongkongpools.com")
-    
-    # Tunggu lebih lama agar JavaScript selesai loading
-    time.sleep(20) 
-
-    # Mencari angka 6 digit di dalam tabel
-    elements = driver.find_elements(By.TAG_NAME, "td")
-    
-    found_data = None
-    for el in elements:
-        teks = el.text.strip().replace(" ", "")
-        # Mencari teks yang panjangnya 6 angka
-        if len(teks) == 6 and teks.isdigit():
-            found_data = teks
-            break # Ambil yang pertama (Prize 1)
-
-    if found_data:
-        hasil_4d = found_data[-4:]
+def scrape_sdy(url, name):
+    driver = get_driver()
+    try:
+        print(f"Mencoba mengambil data dari {name}...")
+        driver.get(url)
+        time.sleep(25)
         
-        # --- LOGIKA ANTI-DUPLIKAT ---
-        try:
-            with open("data_keluaran_hk.txt", "r") as f:
-                lines = f.readlines()
-                # Ambil baris terakhir dan hilangkan spasi/enter
-                last_line = lines[-1].strip() if lines else ""
-        except FileNotFoundError:
-            last_line = ""
-
-        # Hanya tulis jika angka baru tidak sama dengan angka terakhir di file
-        if hasil_4d != last_line:
-            with open("data_keluaran_hk.txt", "a") as f:
-                f.write(f"\n{hasil_4d}")
-            print(f"Data Berhasil Ditarik: {found_data} -> 4D: {hasil_4d} (Disimpan)")
-        else:
-            print(f"Angka {hasil_4d} sudah ada di baris terakhir. Skip simpan.")
-        # ----------------------------
+        page_content = driver.find_element(By.TAG_NAME, "body").text
         
+        # Cari pola 6 angka
+        all_6d = re.findall(r'\d{6}', page_content)
+        for num in all_6d:
+            if "2026" not in num:
+                return num[-4:]
+        
+        # Cari pola 4 angka (Backup)
+        all_4d = re.findall(r'\b\d{4}\b', page_content)
+        for num in all_4d:
+            if num != "2026":
+                return num
+                
+        return None
+    except Exception as e:
+        print(f"Error di {name}: {e}")
+        return None
+    finally:
+        driver.quit()
+
+# --- MAIN PROGRAM ---
+# Link 1: Utama, Link 2: Backup
+targets = [
+    {"name": "Hongkongpools", "url": "https://www.hongkongpools.com/"},
+    {"name": "Link IP Backup", "url": "http://188.166.180.129/live-draw-hk.php"}
+]
+
+hasil_4d = None
+for target in targets:
+    hasil_4d = scrape_hk(target['url'], target['name'])
+    if hasil_4d:
+        print(f"Berhasil mendapatkan data dari {target['name']}: {hasil_4d}")
+        break
     else:
-        print("Gagal menemukan angka 6D. Website mungkin sedang update.")
+        print(f"Gagal mendapatkan data dari {target['name']}, mencoba link berikutnya...")
 
-except Exception as e:
-    print(f"Terjadi Error: {e}")
+if hasil_4d:
+    # LOGIKA ANTI-DUPLIKAT
+    try:
+        with open("data_keluaran_hk.txt", "r") as f:
+            lines = f.readlines()
+            last_line = lines[-1].strip() if lines else ""
+    except FileNotFoundError:
+        last_line = ""
 
-finally:
-    driver.quit()
+    if hasil_4d != last_line:
+        with open("data_keluaran_hk.txt", "a") as f:
+            f.write(f"\n{hasil_4d}")
+        print(f"HK Sukses Simpan: {hasil_4d}")
+    else:
+        print(f"HK: Angka {hasil_4d} sudah ada, skip.")
+else:
+    print("HK: Semua link gagal memberikan data.")
