@@ -162,57 +162,91 @@ except:
     data_ada = set()
 
 # --- EKSEKUSI ---
-    if tombol_proses and input_bbfs:
-        # 1. Wadah utama
-        data_hasil = []
-        semua_panas = [] # Wadah untuk menampung data panas dari semua mode
-        
-        # Proses 4D, 3D, 2D
-        for mode, count in [("4D", 4), ("3D", 3), ("2D", 2)]:
-            if (mode == "4D" and show_4d) or (mode == "3D" and show_3d) or (mode == "2D" and show_2d):
-                a, b, p = get_kombinasi(input_bbfs, count, data_ada)
-                data_hasil.extend([x for x in a if not is_tereliminasi(x, f_as, f_kop, f_kep, f_ekor)])
-                semua_panas.extend(p)
+if tombol_proses and input_bbfs:
+    def cetak_hasil_blok(label, daftar_angka):
+        if daftar_angka:
+            st.subheader(f"📊 {label} ({len(daftar_angka)} Line)")
+            for i in range(0, len(daftar_angka), 300):
+                st.code("*".join(daftar_angka[i:i+300]))
 
-        # Proses Twin (Strict)
-        if show_twin:
-            aman_t, panas_t = get_kembar_strict_v2(input_bbfs, 2, data_ada)
-            aman_t_f = [x for x in aman_t if not is_tereliminasi(x, f_as, f_kop, f_kep, f_ekor)]
-            data_hasil.extend(aman_t_f)
-            semua_panas.extend(panas_t)
-
-        # 2. Tampilkan dengan TABS
-        tab1, tab2 = st.tabs(["📋 Tampilan Per Blok (Default)", "📄 Tampilan List (Full)"])
+    # 1. Proses 4D
+    if show_4d:
+        a4, b4, p4 = get_kombinasi(input_bbfs, 4, data_ada)
         
-        with tab1:
-            if data_hasil:
-                st.subheader(f"📊 HASIL AKHIR ({len(data_hasil)} Line)")
-                for i in range(0, len(data_hasil), 300):
-                    akhir = i + 300
-                    with st.expander(f"📦 BLOK ({i+1} - {min(akhir, len(data_hasil))})"):
-                        st.code("*".join(data_hasil[i:akhir]))
+        # Saring hasil
+        a4_final = [a for a in a4 if not is_tereliminasi(a, f_as, f_kop, f_kep, f_ekor)]
+        
+        # PENTING: Gunakan a4_final di bawah sini, BUKAN a4
+        if a4_final: 
+            st.subheader(f"📊 HASIL 4D ACAK ({len(a4_final)} Line)")
+            for i in range(0, len(a4_final), 300):
+                akhir = i + 300
+                with st.expander(f"📦 BLOK 4D (No. {i+1} - {min(akhir, len(a4_final))})"):
+                    st.code("*".join(a4_final[i:akhir]))
             
-            # Tampilkan Data Panas di sini agar tetap terlihat
-            if semua_panas:
-                st.error(f"🔥 DATA PANAS DITEMUKAN: {', '.join(set(semua_panas))}")
-            else:
-                st.success("✅ Tidak ada data panas.")
+            # (b4 dan p4 tetap muncul sebagai info tambahan)
+            if b4: st.warning(f"⚠️ BERURUTAN (4D): {len(b4)} Line -> {', '.join(b4)}")
+            if p4: st.error(f"🔥 DATA PANAS (4D): {len(p4)} Line -> {', '.join(p4)}")
 
-        with tab2:
-            st.subheader("📝 LIST LENGKAP (Tanpa Blok)")
-            st.code("*".join(data_hasil))
+    # 2. Proses 3D
+    if show_3d:
+        a3, b3, p3 = get_kombinasi(input_bbfs, 3, data_ada)
+        
+        # Saring hasil
+        a3_final = [a for a in a3 if not is_tereliminasi(a, f_as, f_kop, f_kep, f_ekor)]
+        
+        if a3_final:
+            st.subheader(f"📊 HASIL 3D ACAK ({len(a3_final)} Line)")
+            for i in range(0, len(a3_final), 300):
+                akhir = i + 300
+                with st.expander(f"📦 BLOK 3D (No. {i+1} - {min(akhir, len(a3_final))})"):
+                    st.code("*".join(a3_final[i:akhir]))
+            if b3: st.warning(f"⚠️ BERURUTAN (3D): {len(b3)} Line -> {', '.join(b3)}")
+            if p3: st.error(f"🔥 DATA PANAS (3D): {len(p3)} Line -> {', '.join(p3)}")
+
+    # 3. Proses 2D
+    if show_2d:
+        a2, b2, p2 = get_kombinasi(input_bbfs, 2, data_ada)
+        
+        # Saring hasil
+        a2_final = [a for a in a2 if not is_tereliminasi(a, f_as, f_kop, f_kep, f_ekor)]
+        
+        if a2_final:
+            st.subheader(f"📊 HASIL 2D ACAK ({len(a2_final)} Line)")
+            for i in range(0, len(a2_final), 300):
+                akhir = i + 300
+                with st.expander(f"📦 BLOK 2D (No. {i+1} - {min(akhir, len(a2_final))})"):
+                    st.code("*".join(a2_final[i:akhir]))
+            if b2: st.warning(f"⚠️ BERURUTAN (2D): {len(b2)} Line -> {', '.join(b2)}")
+            if p2: st.error(f"🔥 DATA PANAS (2D): {len(p2)} Line -> {', '.join(p2)}")
+    
+    # 4. Proses Kembar (Strict)
+    if show_twin:
+        # Panggil fungsi yang sudah kita buat sebelumnya
+        aman_twin, panas_twin = get_kembar_strict_v2(input_bbfs, 2, data_ada)
+        
+        # --- INTEGRASI FILTER DI SINI ---
+        # Kita saring aman_twin agar hanya berisi yang TIDAK tereliminasi filter
+        aman_twin_final = [a for a in aman_twin if not is_tereliminasi(a, f_as, f_kop, f_kep, f_ekor)]
+        
+        if aman_twin_final:
+            st.subheader(f"📊 TOTAL TWIN 4D ({len(aman_twin_final)} Line)")
+            
+            # Kelompokkan yang sudah difilter
+            data_kelompok = kelompokkan_twin(aman_twin_final)
+            
+            for pola, daftar in data_kelompok.items():
+                with st.expander(f"🔹 POLA {pola} ({len(daftar)} Line)"):
+                    st.code("*".join(daftar))
+        
+        # Tampilkan data panas tetap muncul seperti biasa
+        if panas_twin:
+            st.error(f"🔥 DATA PANAS DITEMUKAN: {', '.join(panas_twin)}")
 
 elif tombol_proses and not input_bbfs:
     st.error("Isi angkanya dulu Koh!")
 
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
-
-
-
-
-
-
-
 
 
 
