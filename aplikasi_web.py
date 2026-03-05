@@ -15,26 +15,35 @@ def is_berurutan(angka):
         return False
 
 def get_kombinasi(input_digits, digit_count, data_ada):
+    # 1. Hasilkan semua permutasi unik
     hasil_raw = sorted(list(set("".join(p) for p in permutations(input_digits, digit_count))))
-    acak = [a for a in hasil_raw if not is_berurutan(a)]
+    
+    # 2. Identifikasi angka yang sudah pernah keluar (Data Panas)
+    panas = [a for a in hasil_raw if a in data_ada]
+    
+    # 3. Identifikasi angka berurutan
     berurutan = [a for a in hasil_raw if is_berurutan(a)]
-    panas = [a for a in hasil_raw if any(a in d for d in data_ada)]
+    
+    # 4. Filter 'acak' agar HANYA berisi angka yang TIDAK berurutan DAN TIDAK ada di data_ada
+    acak = [a for a in hasil_raw if not is_berurutan(a) and a not in panas]
+    
     return acak, berurutan, panas
 
-def get_kembar_strict(input_digits, tipe):
-    # Menghasilkan semua kombinasi 4 digit (itertools.product)
+def get_kembar_strict(input_digits, tipe, data_ada):
+    # Menghasilkan semua kombinasi 4 digit
     hasil_raw = ["".join(p) for p in itertools.product(input_digits, repeat=4)]
     final = []
     for h in hasil_raw:
         counts = [h.count(d) for d in set(h)]
         max_c = max(counts)
         
-        if tipe == 2: # TWIN SAJA (Paling banyak ada 2 angka sama, bukan 3 atau 4)
-            if max_c == 2: final.append(h)
-        elif tipe == 3: # TRIPLE SAJA (Paling banyak ada 3 angka sama, bukan 4)
-            if max_c == 3: final.append(h)
-        elif tipe == 4: # QUAD (Harus 4 angka sama)
-            if max_c == 4: final.append(h)
+        # Filter berdasarkan tipe kembar DAN pastikan belum pernah keluar (tidak ada di data_ada)
+        if tipe == 2: # TWIN
+            if max_c == 2 and h not in data_ada: final.append(h)
+        elif tipe == 3: # TRIPLE
+            if max_c == 3 and h not in data_ada: final.append(h)
+        elif tipe == 4: # QUAD
+            if max_c == 4 and h not in data_ada: final.append(h)
             
     return sorted(list(set(final)))
 
@@ -174,7 +183,7 @@ if tombol_proses and input_bbfs:
     
     # 4. Proses Kembar (Strict) & Cek Data Panas
     if show_twin:
-        res_twin = get_kembar_strict(input_bbfs, 2)
+        res_twin = get_kembar_strict(input_bbfs, 2, data_ada)
         if res_twin:
             st.subheader(f"📊 TOTAL TWIN 4D ({len(res_twin)} Line)")
             
@@ -195,5 +204,6 @@ elif tombol_proses and not input_bbfs:
     st.error("Isi angkanya dulu Koh!")
 
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
+
 
 
