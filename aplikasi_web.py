@@ -247,7 +247,10 @@ if tombol_proses and input_bbfs:
         a2_final = [a for a in kombinasi_2d if not is_tereliminasi_2d(a, f_kep, f_ekor)]
         
         data_hasil.extend(a2_final)
-    cetak_hasil_blok("HASIL BBFS", data_hasil)
+    # --- TEMPELKAN PEMANGGILAN FILE BARU DI SINI ---
+    import tampilan_hasil as th
+    th.tampilkan_hasil_tab(data_hasil, a4_final) # Asumsi a4_final sudah terdefinisi di atas
+    # ----------------------------------------------
  
  # 4. Proses Kembar (Strict)
     if show_twin:
@@ -276,6 +279,7 @@ elif tombol_proses and not input_bbfs:
     st.error("Isi angkanya dulu Koh!")
 
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
+
 
 
 
