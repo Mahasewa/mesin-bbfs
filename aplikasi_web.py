@@ -238,22 +238,13 @@ if tombol_proses and input_bbfs:
             if p3: 
                 st.error(f"🔥 DATA PANAS (3D): {len(p3)} Line -> {', '.join(p3)}")
 
- # 3. Proses 2D
+# 3. Proses 2D
     if show_2d:
-        a2, b2, p2 = get_kombinasi(input_bbfs, 2, data_ada_2d)
-        a2_final = [a for a in a2 if not is_tereliminasi2d(a, f_kep, f_ekor)]
-    
-    # Bagian ini yang krusial untuk memunculkan hasil 2D
-        if a2_final:
-            st.subheader(f"📊 HASIL 2D ACAK ({len(a2_final)} Line)")
-            for i in range(0, len(a2_final), 300):
-                akhir = i + 300
-                with st.expander(f"📦 BLOK 2D (No. {i+1} - {min(akhir, len(a2_final))})"):
-                    st.code("*".join(a2_final[i:akhir]))
-
-    # Tampilkan Berurutan dan Panas di luar blok hasil acak
-        if b2: st.warning(f"⚠️ BERURUTAN (2D): {len(b2)} Line -> {', '.join(b2)}")
-        if p2: st.error(f"🔥 DATA PANAS (2D): {len(p2)} Line -> {', '.join(p2)}")
+        a2, b2, p2 = get_kombinasi(input_bbfs, 2, set())
+        a2_final = [a for a in a2 if not is_tereliminasi_2d(a, f_kep, f_ekor)]
+        data_hasil.extend(a2_final)
+        if b2: st.warning(f"⚠️ BERURUTAN (2D): {len(b2)} Line")
+        if p2: st.error(f"🔥 DATA PANAS (2D): {len(p2)} Line")
 
  
  # 4. Proses Kembar (Strict)
@@ -283,6 +274,7 @@ elif tombol_proses and not input_bbfs:
     st.error("Isi angkanya dulu Koh!")
 
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
+
 
 
 
