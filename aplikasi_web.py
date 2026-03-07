@@ -85,13 +85,8 @@ def is_tereliminasi(angka, f_as, f_kop, f_kep, f_ekor):
         if f_kep and angka[1] == f_kep: return True
         if f_ekor and angka[2] == f_ekor: return True
         
-    # --- LOGIKA UNTUK 2D (2D Belakang) ---
-    elif len(angka) == 2:
-        # Di 2D Belakang: angka[0]=Kepala, angka[1]=Ekor
-        if f_kep and angka[0] == f_kep: return True
-        if f_ekor and angka[1] == f_ekor: return True
-        
     return False
+    
 def is_tereliminasi_2d(angka, f_kep, f_ekor):
     # Hanya mengecek posisi Kepala (angka[0]) dan Ekor (angka[1])
     if f_kep and angka[0] == f_kep: return True
@@ -275,6 +270,7 @@ elif tombol_proses and not input_bbfs:
     st.error("Isi angkanya dulu Koh!")
 
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
+
 
 
 
