@@ -28,7 +28,13 @@ def get_kombinasi(input_digits, digit_count, data_ada):
     acak = [a for a in hasil_raw if not is_berurutan(a) and a not in panas]
     
     return acak, berurutan, panas
-
+def get_kombinasi_2d(bbfs):
+    # Hanya menghasilkan kombinasi 2 digit (00-99) dari angka BBFS
+    hasil = []
+    for i in bbfs:
+        for j in bbfs:
+            hasil.append(f"{i}{j}")
+    return hasil
 def get_kembar_strict_v2(input_digits, tipe, data_ada):
     # Menghasilkan semua kombinasi 4 digit
     hasil_raw = ["".join(p) for p in itertools.product(input_digits, repeat=4)]
@@ -235,14 +241,11 @@ if tombol_proses and input_bbfs:
 
 # 3. Proses 2D
     if show_2d:
-        a2, b2, p2 = get_kombinasi(input_bbfs, 2, set())
+        a2, _, _ = get_kombinasi_2d(input_bbfs, 2, set())
     st.write(f"DEBUG: Jumlah kombinasi 2D mentah = {len(a2)}") # Cek ini!
     a2_final = [a for a in a2 if not is_tereliminasi_2d(a, f_kep, f_ekor)]
     data_hasil.extend(a2_final)
-    if b2:
-                st.warning(f"BERURUTAN (2D): {len(b2)} Line -> {', '.join(b2)}")
-    if p2:
-                st.error(f"DATA PANAS (2D): {len(p2)} Line -> {', '.join(p2)}")
+   
  
  # 4. Proses Kembar (Strict)
     if show_twin:
@@ -271,6 +274,7 @@ elif tombol_proses and not input_bbfs:
     st.error("Isi angkanya dulu Koh!")
 
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
+
 
 
 
