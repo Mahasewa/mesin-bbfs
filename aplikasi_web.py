@@ -233,21 +233,22 @@ if tombol_proses and input_bbfs:
             if p3: 
                 st.error(f"🔥 DATA PANAS (3D): {len(p3)} Line -> {', '.join(p3)}")
 
-    # 3. Proses 2D
-    if show_2d:
-        a2, b2, p2 = get_kombinasi(input_bbfs, 2, data_ada_2d)
-        
-        # Saring hasil
-        a2_final = [a for a in a2 if not is_tereliminasi(a, f_as, f_kop, f_kep, f_ekor)]
-        
-            if a2_final:
-                st.subheader(f"📊 HASIL 2D ACAK ({len(a2_final)} Line)")
-                for i in range(0, len(a2_final), 300):
-                    akhir = i + 300
-                    with st.expander(f"📦 BLOK 2D (No. {i+1} - {min(akhir, len(a2_final))})"):
-                    st.code("*".join(a2_final[i:akhir]))
-        if b2: st.warning(f"⚠️ BERURUTAN (2D): {len(b2)} Line -> {', '.join(b2)}")
-        if p2: st.error(f"🔥 DATA PANAS (2D): {len(p2)} Line -> {', '.join(p2)}")
+    # Proses 2D (Sejajar dengan 4D dan 3D)
+        if show_2d:
+            # 1. Ambil kombinasi menggunakan data khusus 2D (2 angka belakang)
+            a2, b2, p2 = get_kombinasi(input_bbfs, 2, data_ada_2d)
+            
+            # 2. Saring dengan filter eliminasi (a2_f adalah hasil bersih)
+            a2_f = [a for a in a2 if not is_tereliminasi(a, f_as, f_kop, f_kep, f_ekor)]
+            
+            # 3. Masukkan hasil bersih ke wadah utama agar muncul di TAB
+            data_hasil.extend(a2_f)
+            
+            # 4. Tampilkan info tambahan di bawah TAB (opsional tapi bagus buat info)
+            if b2: 
+                st.warning(f"⚠️ BERURUTAN (2D): {len(b2)} Line -> {', '.join(b2)}")
+            if p2: 
+                st.error(f"🔥 DATA PANAS (2D): {len(p2)} Line -> {', '.join(p2)}")
     
     # 4. Proses Kembar (Strict)
     if show_twin:
@@ -276,6 +277,7 @@ elif tombol_proses and not input_bbfs:
     st.error("Isi angkanya dulu Koh!")
 
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
+
 
 
 
