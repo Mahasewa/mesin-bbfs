@@ -247,7 +247,7 @@ if tombol_proses and input_bbfs:
         a2_final = [a for a in kombinasi_2d if not is_tereliminasi_2d(a, f_kep, f_ekor)]
         st.write(f"Debug: Sisa setelah eliminasi {len(a2_final)}") # Cek sisa filter
         data_hasil.extend(a2_final)
-   cetak_hasil_blok("HASIL BBFS", data_hasil)
+    cetak_hasil_blok("HASIL BBFS", data_hasil)
  
  # 4. Proses Kembar (Strict)
     if show_twin:
@@ -276,6 +276,7 @@ elif tombol_proses and not input_bbfs:
     st.error("Isi angkanya dulu Koh!")
 
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
+
 
 
 
