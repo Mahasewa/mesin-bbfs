@@ -215,8 +215,8 @@ if tombol_proses and input_bbfs:
                 akhir = i + 300
                 with st.expander(f"📦 BLOK 3D (No. {i+1} - {min(akhir, len(a3_final))})"):
                     st.code("*".join(a3_final[i:akhir]))
-            if b3: st.warning(f"⚠️ BERURUTAN (3D): {len(b3)} Line -> {', '.join(b3)}")
-            if p3: st.error(f"🔥 DATA PANAS (3D): {len(p3)} Line -> {', '.join(p3)}")
+        if b3: st.warning(f"⚠️ BERURUTAN (3D): {len(b3)} Line -> {', '.join(b3)}")
+        if p3: st.error(f"🔥 DATA PANAS (3D): {len(p3)} Line -> {', '.join(p3)}")
 
     # 3. Proses 2D
     if show_2d:
@@ -261,6 +261,7 @@ elif tombol_proses and not input_bbfs:
     st.error("Isi angkanya dulu Koh!")
 
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
+
 
 
 
