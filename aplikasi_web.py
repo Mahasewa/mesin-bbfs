@@ -202,21 +202,29 @@ if tombol_proses and input_bbfs:
             if b4: st.warning(f"⚠️ BERURUTAN (4D): {len(b4)} Line -> {', '.join(b4)}")
             if p4: st.error(f"🔥 DATA PANAS (4D): {len(p4)} Line -> {', '.join(p4)}")
 
-    # 2. Proses 3D
-    if show_3d:
-        a3, b3, p3 = get_kombinasi(input_bbfs, 3, data_ada)
-        
-        # Saring hasil
-        a3_final = [a for a in a3 if not is_tereliminasi(a, f_as, f_kop, f_kep, f_ekor)]
-        
-        if a3_final:
-            st.subheader(f"📊 HASIL 3D ACAK ({len(a3_final)} Line)")
-            for i in range(0, len(a3_final), 300):
-                akhir = i + 300
-                with st.expander(f"📦 BLOK 3D (No. {i+1} - {min(akhir, len(a3_final))})"):
-                    st.code("*".join(a3_final[i:akhir]))
-        if b3: st.warning(f"⚠️ BERURUTAN (3D): {len(b3)} Line -> {', '.join(b3)}")
-        if p3: st.error(f"🔥 DATA PANAS (3D): {len(p3)} Line -> {', '.join(p3)}")
+    # Proses 3D
+        if show_3d:
+            a3, b3, p3 = get_kombinasi(input_bbfs, 3, data_ada)
+            
+            # --- BARIS DEBUG (Hapus nanti kalau sudah normal) ---
+            st.write(f"DEBUG: Jumlah Data Panas (p3) = {len(p3)}")
+            if len(p3) > 0:
+                st.write(f"DEBUG: Isi Data Panas = {p3}")
+            
+            a3_final = [a for a in a3 if not is_tereliminasi(a, f_as, f_kop, f_kep, f_ekor)]
+            
+            if a3_final:
+                st.subheader(f"📊 HASIL 3D ACAK ({len(a3_final)} Line)")
+                for i in range(0, len(a3_final), 300):
+                    akhir = i + 300
+                    with st.expander(f"📦 BLOK 3D (No. {i+1} - {min(akhir, len(a3_final))})"):
+                        st.code("*".join(a3_final[i:akhir]))
+
+            # Tampilkan Berurutan dan Panas di luar blok hasil acak
+            if b3: 
+                st.warning(f"⚠️ BERURUTAN (3D): {len(b3)} Line -> {', '.join(b3)}")
+            if p3: 
+                st.error(f"🔥 DATA PANAS (3D): {len(p3)} Line -> {', '.join(p3)}")
 
     # 3. Proses 2D
     if show_2d:
@@ -261,6 +269,7 @@ elif tombol_proses and not input_bbfs:
     st.error("Isi angkanya dulu Koh!")
 
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
+
 
 
 
