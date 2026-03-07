@@ -92,7 +92,12 @@ def is_tereliminasi(angka, f_as, f_kop, f_kep, f_ekor):
         if f_ekor and angka[1] == f_ekor: return True
         
     return False
-
+def is_tereliminasi_2d(angka, f_kep, f_ekor):
+    # Hanya mengecek posisi Kepala (angka[0]) dan Ekor (angka[1])
+    if f_kep and angka[0] == f_kep: return True
+    if f_ekor and angka[1] == f_ekor: return True
+    return False
+    
 # --- TAMPILAN WEB ---
 st.set_page_config(page_title="Mahasewa BBFS Pro", layout="wide")
 
@@ -236,7 +241,7 @@ if tombol_proses and input_bbfs:
  # 3. Proses 2D
     if show_2d:
         a2, b2, p2 = get_kombinasi(input_bbfs, 2, data_ada_2d)
-        a2_final = [a for a in a2 if not is_tereliminasi(a, f_as, f_kop, f_kep, f_ekor)]
+        a2_final = [a for a in a2 if not is_tereliminasi2d(a, f_kep, f_ekor)]
     
     # Bagian ini yang krusial untuk memunculkan hasil 2D
         if a2_final:
@@ -278,6 +283,7 @@ elif tombol_proses and not input_bbfs:
     st.error("Isi angkanya dulu Koh!")
 
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
+
 
 
 
