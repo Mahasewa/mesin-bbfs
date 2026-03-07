@@ -247,10 +247,8 @@ if tombol_proses and input_bbfs:
                     st.code("*".join(a2_final[i:akhir]))
 
     # Tampilkan Berurutan dan Panas di luar blok hasil acak
-        if b2: 
-        st.warning(f"⚠️ BERURUTAN (2D): {len(b2)} Line -> {', '.join(b2)}")
-        if p2: 
-        st.error(f"🔥 DATA PANAS (2D): {len(p2)} Line -> {', '.join(p2)}")
+        if b2: st.warning(f"⚠️ BERURUTAN (2D): {len(b2)} Line -> {', '.join(b2)}")
+        if p2: st.error(f"🔥 DATA PANAS (2D): {len(p2)} Line -> {', '.join(p2)}")
 
  
  # 4. Proses Kembar (Strict)
@@ -280,6 +278,7 @@ elif tombol_proses and not input_bbfs:
     st.error("Isi angkanya dulu Koh!")
 
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
+
 
 
 
