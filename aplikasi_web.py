@@ -203,7 +203,7 @@ if tombol_proses and input_bbfs:
             if p4: st.error(f"🔥 DATA PANAS (4D): {len(p4)} Line -> {', '.join(p4)}")
 
     # Proses 3D
-        if show_3d:
+    if show_3d:
             a3, b3, p3 = get_kombinasi(input_bbfs, 3, data_ada)
             
             # --- BARIS DEBUG (Hapus nanti kalau sudah normal) ---
@@ -269,6 +269,7 @@ elif tombol_proses and not input_bbfs:
     st.error("Isi angkanya dulu Koh!")
 
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
+
 
 
 
