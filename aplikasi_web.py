@@ -218,11 +218,6 @@ if tombol_proses and input_bbfs:
     if show_3d:
             a3, b3, p3 = get_kombinasi(input_bbfs, 3, data_ada_3d)
             
-            # --- BARIS DEBUG (Hapus nanti kalau sudah normal) ---
-            st.write(f"DEBUG: Jumlah Data Panas (p3) = {len(p3)}")
-            if len(p3) > 0:
-                st.write(f"DEBUG: Isi Data Panas = {p3}")
-            
             a3_final = [a for a in a3 if not is_tereliminasi(a, f_as, f_kop, f_kep, f_ekor)]
             
             if a3_final:
@@ -245,14 +240,14 @@ if tombol_proses and input_bbfs:
         # Saring hasil
         a2_final = [a for a in a2 if not is_tereliminasi(a, f_as, f_kop, f_kep, f_ekor)]
         
-        if a2_final:
-            st.subheader(f"📊 HASIL 2D ACAK ({len(a2_final)} Line)")
-            for i in range(0, len(a2_final), 300):
-                akhir = i + 300
-                with st.expander(f"📦 BLOK 2D (No. {i+1} - {min(akhir, len(a2_final))})"):
+            if a2_final:
+                st.subheader(f"📊 HASIL 2D ACAK ({len(a2_final)} Line)")
+                for i in range(0, len(a2_final), 300):
+                    akhir = i + 300
+                    with st.expander(f"📦 BLOK 2D (No. {i+1} - {min(akhir, len(a2_final))})"):
                     st.code("*".join(a2_final[i:akhir]))
-            if b2: st.warning(f"⚠️ BERURUTAN (2D): {len(b2)} Line -> {', '.join(b2)}")
-            if p2: st.error(f"🔥 DATA PANAS (2D): {len(p2)} Line -> {', '.join(p2)}")
+        if b2: st.warning(f"⚠️ BERURUTAN (2D): {len(b2)} Line -> {', '.join(b2)}")
+        if p2: st.error(f"🔥 DATA PANAS (2D): {len(p2)} Line -> {', '.join(p2)}")
     
     # 4. Proses Kembar (Strict)
     if show_twin:
@@ -281,6 +276,7 @@ elif tombol_proses and not input_bbfs:
     st.error("Isi angkanya dulu Koh!")
 
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
+
 
 
 
