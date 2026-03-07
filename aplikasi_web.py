@@ -67,16 +67,30 @@ def kelompokkan_twin(daftar_angka):
     return kelompok
 
 def is_tereliminasi(angka, f_as, f_kop, f_kep, f_ekor):
-    # Jika filter kosong, tidak ada yang dieliminasi
+    # Jika semua filter kosong, jangan eliminasi apa pun
     if not (f_as or f_kop or f_kep or f_ekor):
         return False
     
-    # Cek kecocokan posisi
-    if f_as and angka[0] == f_as: return True
-    if f_kop and angka[1] == f_kop: return True
-    if f_kep and angka[2] == f_kep: return True
-    if f_ekor and angka[3] == f_ekor: return True
-    
+    # --- LOGIKA UNTUK 4D ---
+    if len(angka) == 4:
+        if f_as and angka[0] == f_as: return True
+        if f_kop and angka[1] == f_kop: return True
+        if f_kep and angka[2] == f_kep: return True
+        if f_ekor and angka[3] == f_ekor: return True
+        
+    # --- LOGIKA UNTUK 3D (3D Belakang) ---
+    elif len(angka) == 3:
+        # Di 3D Belakang: angka[0]=Kop, angka[1]=Kepala, angka[2]=Ekor
+        if f_kop and angka[0] == f_kop: return True
+        if f_kep and angka[1] == f_kep: return True
+        if f_ekor and angka[2] == f_ekor: return True
+        
+    # --- LOGIKA UNTUK 2D (2D Belakang) ---
+    elif len(angka) == 2:
+        # Di 2D Belakang: angka[0]=Kepala, angka[1]=Ekor
+        if f_kep and angka[0] == f_kep: return True
+        if f_ekor and angka[1] == f_ekor: return True
+        
     return False
 
 # --- TAMPILAN WEB ---
@@ -247,6 +261,7 @@ elif tombol_proses and not input_bbfs:
     st.error("Isi angkanya dulu Koh!")
 
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
+
 
 
 
