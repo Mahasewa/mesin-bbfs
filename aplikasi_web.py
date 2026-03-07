@@ -239,11 +239,10 @@ if tombol_proses and input_bbfs:
             if p3: 
                 st.error(f"🔥 DATA PANAS (3D): {len(p3)} Line -> {', '.join(p3)}")
 
-# 3. Proses 2D
+# 3. Proses 2D (Fungsi baru, tanpa filter tambahan)
     if show_2d:
-        a2, _, _ = get_kombinasi_2d(input_bbfs, 2, set())
-    st.write(f"DEBUG: Jumlah kombinasi 2D mentah = {len(a2)}") # Cek ini!
-    a2_final = [a for a in a2 if not is_tereliminasi_2d(a, f_kep, f_ekor)]
+    kombinasi_2d = get_kombinasi_2d(input_bbfs)
+    a2_final = [a for a in kombinasi_2d if not is_tereliminasi_2d(a, f_kep, f_ekor)]
     data_hasil.extend(a2_final)
    
  
@@ -274,6 +273,7 @@ elif tombol_proses and not input_bbfs:
     st.error("Isi angkanya dulu Koh!")
 
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
+
 
 
 
