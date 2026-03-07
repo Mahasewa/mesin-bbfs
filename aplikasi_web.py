@@ -241,11 +241,11 @@ if tombol_proses and input_bbfs:
 
 # 3. Proses 2D (Fungsi baru, tanpa filter tambahan)
     if show_2d:
-        st.write("Debug: Fungsi 2D dipanggil") # Cek ini muncul tidak
+        
         kombinasi_2d = get_kombinasi_2d(input_bbfs)
-        st.write(f"Debug: Total kombinasi {len(kombinasi_2d)}") # Cek jumlahnya
+        
         a2_final = [a for a in kombinasi_2d if not is_tereliminasi_2d(a, f_kep, f_ekor)]
-        st.write(f"Debug: Sisa setelah eliminasi {len(a2_final)}") # Cek sisa filter
+        
         data_hasil.extend(a2_final)
     cetak_hasil_blok("HASIL BBFS", data_hasil)
  
@@ -276,6 +276,7 @@ elif tombol_proses and not input_bbfs:
     st.error("Isi angkanya dulu Koh!")
 
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
+
 
 
 
