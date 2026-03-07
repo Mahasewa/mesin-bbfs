@@ -268,11 +268,12 @@ if tombol_proses and input_bbfs:
         tt.proses_pilihan_twin(data_kelompok)
     
         # 4. Tampilkan panas_twin (tetap muncul sebagai info)
-        if panas_twin:
+    if panas_twin:
         st.error(f"🔥 DATA PANAS DITEMUKAN: {len(panas_twin)} Line")
 
 elif tombol_proses and not input_bbfs:
     st.error("Isi angkanya dulu Koh!")
 
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
+
 
