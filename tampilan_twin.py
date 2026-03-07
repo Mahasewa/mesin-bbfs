@@ -1,36 +1,36 @@
 import streamlit as st
 
 def proses_pilihan_twin(data_kelompok):
-    st.subheader("📊 DAFTAR POLA TWIN 4D")
+    st.subheader("📊 KATALOG POLA TWIN 4D")
     
-    # Inisialisasi state untuk menampung pilihan checkbox
-    if 'pilihan_twin' not in st.session_state:
-        st.session_state.pilihan_twin = {pola: False for pola in data_kelompok.keys()}
-
-    # Tampilkan Pola dengan Checkbox di Sampingnya
+    # 1. Tampilkan katalog (Hanya label dan expander)
+    # Gunakan session_state untuk menyimpan pilihan tanpa memicu aksi
     for pola, daftar in data_kelompok.items():
-        # Membuat kolom: Sempit untuk checkbox, lebar untuk expander
-        c1, c2 = st.columns([1, 10])
+        # Kolom untuk checkmark dan label
+        col1, col2 = st.columns([1, 10])
         
-        # Checkbox di kolom 1
-        is_checked = st.checkbox(f"Pilih", key=f"cb_{pola}", value=st.session_state.pilihan_twin[pola])
-        st.session_state.pilihan_twin[pola] = is_checked
+        # Checkbox di sini cuma mengubah nilai di memori, TIDAK memicu aksi apa pun
+        key_pola = f"cb_{pola}"
+        st.session_state[key_pola] = col1.checkbox(f"Pilih", key=key_pola)
         
-        # Expander di kolom 2
-        with c2.expander(f"🔹 POLA {pola} ({len(daftar)} Line)"):
+        # Expander hanya untuk melihat isi data
+        with col2.expander(f"🔹 POLA {pola} ({len(daftar)} Line)"):
             st.code("*".join(daftar))
             
     st.divider()
     
-    # Tombol Eksekusi
+    # 2. Tombol Aksi (Hanya di sini terjadi proses gabung data)
     if st.button("🚀 GABUNGKAN POLA TERPILIH"):
         hasil_gabung = []
-        for pola, checked in st.session_state.pilihan_twin.items():
-            if checked:
+        
+        # Baru sekarang kita cek mana saja yang dicentang
+        for pola in data_kelompok.keys():
+            if st.session_state[f"cb_{pola}"]:
                 hasil_gabung.extend(data_kelompok[pola])
-            
+        
+        # Tampilkan Hasil di bawah
         if hasil_gabung:
             st.subheader(f"📊 HASIL GABUNGAN ({len(hasil_gabung)} Line)")
             st.code("*".join(hasil_gabung))
         else:
-            st.warning("Belum ada pola yang diceklis!")
+            st.warning("Belum ada pola yang dipilih, Koh!")
