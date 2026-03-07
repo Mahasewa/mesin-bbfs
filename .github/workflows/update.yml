@@ -5,6 +5,7 @@ on:
     - cron: '10 07 * * *'  # SDY: Jam 14:10 WIB (07:10 UTC)
     - cron: '55 10 * * *'  # SGP: Jam 17:55 WIB (10:55 UTC)
     - cron: '05 16 * * *'  # HK:  Jam 23:05 WIB (16:05 UTC)
+    - cron: '30 10 * * *' # Japan Pools: Jam 17:30 WIB (10:30 UTC)
   workflow_dispatch:
 
 jobs:
@@ -25,6 +26,9 @@ jobs:
         
       - name: Jalankan SGP
         run: python scraper_sgp.py || echo "SGP belum jamnya"
+      
+      - name: Jalankan Japan Pools
+        run: python scraper_jp.py || echo "Japan Pools belum jamnya"
 
       - name: Push Perubahan
         run: |
