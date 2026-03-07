@@ -1,33 +1,32 @@
 import streamlit as st
 
 def proses_pilihan_twin(data_kelompok):
-    # 1. Simpan daftar pola ke dalam session_state agar tidak hilang
-    if 'pola_terpilih' not in st.session_state:
-        st.session_state.pola_terpilih = []
-
-    st.subheader("🛠️ Panel Gabung Pola Twin")
+    st.subheader("📊 DAFTAR POLA TWIN 4D")
     
-    # 2. Tampilkan Checkbox untuk setiap pola yang tersedia
+    # 1. Tampilkan tampilan lama (seperti expander) agar Koh tahu pilihannya
+    for pola, daftar in data_kelompok.items():
+        with st.expander(f"🔹 POLA {pola} ({len(daftar)} Line)"):
+            st.code("*".join(daftar))
+            
+    st.divider()
+    
+    # 2. Panel Pilihan (Checkbox)
+    st.subheader("🛠️ Panel Gabung Pola Twin")
     pilihan_pola = list(data_kelompok.keys())
     terpilih = []
     
     col_check = st.columns(4)
     for i, pola in enumerate(pilihan_pola):
-        if col_check[i % 4].checkbox(f"Pola {pola}", key=f"check_{pola}"):
+        if col_check[i % 4].checkbox(f"Pola {pola}"):
             terpilih.append(pola)
             
-    # 3. Tombol untuk eksekusi gabung
+    # 3. Tombol Eksekusi
     if st.button("🚀 GABUNGKAN POLA TERPILIH"):
-        st.session_state.pola_terpilih = terpilih
-        
-    # 4. Layar 3: Menampilkan hasil gabungan
-    if st.session_state.pola_terpilih:
         hasil_gabung = []
-        for pola in st.session_state.pola_terpilih:
+        for pola in terpilih:
             hasil_gabung.extend(data_kelompok[pola])
             
+        # 4. Layar 3: Hasil Gabungan
         st.divider()
         st.subheader(f"📊 HASIL GABUNGAN ({len(hasil_gabung)} Line)")
         st.code("*".join(hasil_gabung))
-    else:
-        st.info("Pilih pola di atas lalu klik tombol gabung untuk melihat hasil.")
