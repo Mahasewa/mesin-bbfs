@@ -169,11 +169,23 @@ tombol_proses = st.button("🚀 PROSES SEKARANG")
 # --- AMBIL DATA ---
 file_map = {"Hong Kong (HK)": "data_keluaran_hk.txt", "Sydney (SDY)": "data_keluaran_sdy.txt", "Singapore (SGP)": "data_keluaran_sgp.txt"}
 URL_DATA = f"https://raw.githubusercontent.com/Mahasewa/mesin-bbfs/main/{file_map[pasaran]}"
+
 try:
     respon = requests.get(URL_DATA)
-    data_ada = set(re.findall(r'\b\d{4}\b', respon.text)) if respon.status_code == 200 else set()
+    if respon.status_code == 200:
+        # 1. Ambil data asli 4D
+        data_4d = re.findall(r'\b\d{4}\b', respon.text)
+        data_ada = set(data_4d)
+        
+        # 2. Buat daftar khusus 3D (ambil 3 angka belakang dari setiap 4D)
+        data_ada_3d = set([res[1:] for res in data_4d])
+        
+        # 3. Buat daftar khusus 2D (ambil 2 angka belakang dari setiap 4D)
+        data_ada_2d = set([res[2:] for res in data_4d])
+    else:
+        data_ada = data_ada_3d = data_ada_2d = set()
 except:
-    data_ada = set()
+    data_ada = data_ada_3d = data_ada_2d = set()
 
 # --- EKSEKUSI ---
 if tombol_proses and input_bbfs:
@@ -204,7 +216,7 @@ if tombol_proses and input_bbfs:
 
     # Proses 3D
     if show_3d:
-            a3, b3, p3 = get_kombinasi(input_bbfs, 3, data_ada)
+            a3, b3, p3 = get_kombinasi(input_bbfs, 3, data_ada_3d)
             
             # --- BARIS DEBUG (Hapus nanti kalau sudah normal) ---
             st.write(f"DEBUG: Jumlah Data Panas (p3) = {len(p3)}")
@@ -228,7 +240,7 @@ if tombol_proses and input_bbfs:
 
     # 3. Proses 2D
     if show_2d:
-        a2, b2, p2 = get_kombinasi(input_bbfs, 2, data_ada)
+        a2, b2, p2 = get_kombinasi(input_bbfs, 2, data_ada_2d)
         
         # Saring hasil
         a2_final = [a for a in a2 if not is_tereliminasi(a, f_as, f_kop, f_kep, f_ekor)]
@@ -269,6 +281,7 @@ elif tombol_proses and not input_bbfs:
     st.error("Isi angkanya dulu Koh!")
 
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
+
 
 
 
