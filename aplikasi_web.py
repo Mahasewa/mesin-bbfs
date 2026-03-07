@@ -147,7 +147,7 @@ with col_logo2:
 st.divider()
 
 # --- INPUT AREA ---
-pasaran = st.selectbox("🎯 Pilih Pasaran:", ("Hong Kong (HK)", "Sydney (SDY)", "Singapore (SGP)"))
+pasaran = st.selectbox("🎯 Pilih Pasaran:", ("Hong Kong (HK)", "Sydney (SDY)", "Singapore (SGP)", "Japan Pools (Japan)"))
 
 st.write("🔍 **Opsi Mode Utama:**")
 c1, c2, c3 = st.columns(3)
@@ -173,7 +173,7 @@ f_ekor = c_ekor.text_input("Ekor", max_chars=1)
 tombol_proses = st.button("🚀 PROSES SEKARANG")
 
 # --- AMBIL DATA ---
-file_map = {"Hong Kong (HK)": "data_keluaran_hk.txt", "Sydney (SDY)": "data_keluaran_sdy.txt", "Singapore (SGP)": "data_keluaran_sgp.txt"}
+file_map = {"Hong Kong (HK)": "data_keluaran_hk.txt", "Sydney (SDY)": "data_keluaran_sdy.txt", "Singapore (SGP)": "data_keluaran_sgp.txt", "Japan Pools (Japan)": "data_keluaran_jp.txt"}
 URL_DATA = f"https://raw.githubusercontent.com/Mahasewa/mesin-bbfs/main/{file_map[pasaran]}"
 
 try:
@@ -276,6 +276,7 @@ elif tombol_proses and not input_bbfs:
     st.error("Isi angkanya dulu Koh!")
 
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
+
 
 
 
