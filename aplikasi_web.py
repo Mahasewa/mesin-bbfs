@@ -180,17 +180,17 @@ try:
         # 2. Buat daftar khusus 3D (ambil 3 angka belakang dari setiap 4D)
         data_ada_3d = set([res[1:] for res in data_4d])
         
-        # 3. Buat daftar khusus 2D (ambil 2 angka belakang dari setiap 4D)
-        data_ada_2d = set([res[2:] for res in data_4d])
     else:
-        data_ada = data_ada_3d = data_ada_2d = set()
+        data_ada = data_ada_3d = set()
 except:
-    data_ada = data_ada_3d = data_ada_2d = set()
+    data_ada = data_ada_3d = set()
+    
 def cetak_hasil_blok(label, daftar_angka):
     if daftar_angka:
         st.subheader(f"{label} ({len(daftar_angka)} Line)")
         for i in range(0, len(daftar_angka), 300):
             st.code("*".join(daftar_angka[i:i+300]))
+            
 # --- EKSEKUSI ---
 if tombol_proses and input_bbfs:
     data_hasil = []
@@ -271,6 +271,7 @@ elif tombol_proses and not input_bbfs:
     st.error("Isi angkanya dulu Koh!")
 
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
+
 
 
 
