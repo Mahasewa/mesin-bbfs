@@ -214,7 +214,7 @@ if tombol_proses and input_bbfs:
             if b4: st.warning(f"⚠️ BERURUTAN (4D): {len(b4)} Line -> {', '.join(b4)}")
             if p4: st.error(f"🔥 DATA PANAS (4D): {len(p4)} Line -> {', '.join(p4)}")
 
-    # Proses 3D
+# 2. Proses 3D
     if show_3d:
             a3, b3, p3 = get_kombinasi(input_bbfs, 3, data_ada_3d)
             
@@ -233,22 +233,24 @@ if tombol_proses and input_bbfs:
             if p3: 
                 st.error(f"🔥 DATA PANAS (3D): {len(p3)} Line -> {', '.join(p3)}")
 
-    # PROSES 2D (PASTIKAN SEJAJAR DENGAN SHOW_3D) ---
+# 3. Proses 2D
     if show_2d:
-            # 1. Ambil kombinasi menggunakan data khusus 2D (potongan 2 angka belakang)
             a2, b2, p2 = get_kombinasi(input_bbfs, 2, data_ada_2d)
             
-            # 2. INI DIA PENYARINGANNYA (a2_final)
             a2_final = [a for a in a2 if not is_tereliminasi(a, f_as, f_kop, f_kep, f_ekor)]
             
-            # 3. Masukkan hasil bersih ke wadah utama agar muncul di TAB
-            data_hasil.extend(a2_final)
-            
-            # 4. Tampilkan Info Tambahan (Pindahkan ke kiri agar tidak nyelip di expander)
+            if a2_final:
+                st.subheader(f"📊 HASIL 2D ACAK ({len(a2_final)} Line)")
+                for i in range(0, len(a2_final), 300):
+                    akhir = i + 300
+                    with st.expander(f"📦 BLOK 2D (No. {i+1} - {min(akhir, len(a2_final))})"):
+                        st.code("*".join(a2_final[i:akhir]))
+
+            # Tampilkan Berurutan dan Panas di luar blok hasil acak
             if b2: 
                 st.warning(f"⚠️ BERURUTAN (2D): {len(b2)} Line -> {', '.join(b2)}")
             if p2: 
-                st.error(f"🔥 DATA PANAS (2D): {len(p2)} Line -> {', '.join(p2)}")
+                st.error(f"🔥 DATA PANAS (2D): {len(p2)} Line -> {', '.join(p2)}")  
     
     # 4. Proses Kembar (Strict)
     if show_twin:
@@ -277,6 +279,7 @@ elif tombol_proses and not input_bbfs:
     st.error("Isi angkanya dulu Koh!")
 
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
+
 
 
 
