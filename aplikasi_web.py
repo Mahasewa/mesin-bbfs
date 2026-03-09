@@ -3,8 +3,26 @@ import re
 import requests
 import itertools
 from itertools import permutations
+import streamlit.components.v1 as components
 
 # --- LOGIKA MESIN ---
+def auto_jump_js():
+    js_code = """
+    <script>
+        const inputs = window.parent.document.querySelectorAll('input[type="text"]');
+        // Hanya ambil 4 input filter pertama (As, Kop, Kep, Ekor)
+        const filterInputs = Array.from(inputs).slice(-4); 
+        filterInputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                if (e.target.value.length === 1 && index < filterInputs.length - 1) {
+                    filterInputs[index + 1].focus();
+                }
+            });
+        });
+    </script>
+    """
+    components.html(js_code, height=0)
+
 def is_berurutan(angka):
     try:
         n = [int(d) for d in angka]
@@ -164,6 +182,7 @@ show_quad = k3.checkbox("Quad Saja", value=False)
 input_bbfs = st.text_input("🎲 Masukkan Angka BBFS:", placeholder="Contoh: 12345", max_chars=10)
 
 st.write("🔍 **Filter Posisi (Eliminasi):**")
+auto_jump_js() # Panggil fungsi di sini
 c_as, c_kop, c_kep, c_ekor = st.columns(4)
 f_as = c_as.text_input("As", max_chars=1)
 f_kop = c_kop.text_input("Kop", max_chars=1)
@@ -276,6 +295,7 @@ if show_twin and 'gudang_twin' in st.session_state:
     if st.session_state.gudang_panas:
         st.error(f"🔥 DATA PANAS DITEMUKAN: {len(st.session_state.gudang_panas)} Line")
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
+
 
 
 
