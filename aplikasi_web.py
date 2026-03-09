@@ -200,7 +200,6 @@ f_kop = c_kop.text_input("Kop", max_chars=1)
 f_kep = c_kep.text_input("Kepala", max_chars=1)
 f_ekor = c_ekor.text_input("Ekor", max_chars=1)
 st.write("🔍 **Filter Posisi (Eliminasi 2):**")
-auto_jump_js() # Panggil fungsi di sini
 c_as2, c_kop2, c_kep2, c_ekor2 = st.columns(4)
 f_as2 = c_as2.text_input("As 2", max_chars=1)
 f_kop2 = c_kop2.text_input("Kop 2", max_chars=1)
@@ -317,6 +316,7 @@ if show_twin and 'gudang_twin' in st.session_state:
     if st.session_state.gudang_panas:
         st.error(f"🔥 DATA PANAS DITEMUKAN: {len(st.session_state.gudang_panas)} Line")
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
+
 
 
 
