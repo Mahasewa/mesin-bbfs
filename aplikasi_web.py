@@ -194,7 +194,23 @@ f_as = c_as.text_input("As", max_chars=1)
 f_kop = c_kop.text_input("Kop", max_chars=1)
 f_kep = c_kep.text_input("Kepala", max_chars=1)
 f_ekor = c_ekor.text_input("Ekor", max_chars=1)
+# Tambahkan ini di bagian layout input Koh
+st.subheader("Filter Posisi Eliminasi 1")
+col1, col2, col3, col4 = st.columns(4)
+# ... (input filter 1 yang sudah ada) ...
 
+st.subheader("Filter Posisi Eliminasi 2") # <--- INI KOLOM KE-2
+col5, col6, col7, col8 = st.columns(4)
+
+with col5:
+    st.text_input("As 2", key="as2", max_chars=1)
+with col6:
+    st.text_input("Kop 2", key="kop2", max_chars=1)
+with col7:
+    st.text_input("Kepala 2", key="kep2", max_chars=1)
+with col8:
+    st.text_input("Ekor 2", key="ekor2", max_chars=1)
+    
 tombol_proses = st.button("🚀 PROSES SEKARANG")
 
 # --- AMBIL DATA ---
@@ -314,6 +330,7 @@ if show_twin and 'gudang_twin' in st.session_state:
     if st.session_state.gudang_panas:
         st.error(f"🔥 DATA PANAS DITEMUKAN: {len(st.session_state.gudang_panas)} Line")
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
+
 
 
 
