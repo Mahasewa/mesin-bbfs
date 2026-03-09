@@ -116,7 +116,15 @@ def is_tereliminasi_2d(angka, f_kep, f_ekor):
     if f_kep and angka[0] == f_kep: return True
     if f_ekor and angka[1] == f_ekor: return True
     return False
-    
+def is_tereliminasi_v2(angka, f_as_list, f_kop_list, f_kep_list, f_ekor_list):
+    # f_as_list bisa berupa string "12" atau list ["1", "2"]
+    if len(angka) == 4:
+        if angka[0] in f_as_list: return True
+        if angka[1] in f_kop_list: return True
+        if angka[2] in f_kep_list: return True
+        if angka[3] in f_ekor_list: return True
+    # ... dst untuk 3D
+    return False    
 # --- TAMPILAN WEB ---
 st.set_page_config(page_title="Mahasewa BBFS Pro", layout="wide")
 
@@ -181,14 +189,20 @@ show_quad = k3.checkbox("Quad Saja", value=False)
 
 input_bbfs = st.text_input("🎲 Masukkan Angka BBFS:", placeholder="Contoh: 12345", max_chars=10)
 
-st.write("🔍 **Filter Posisi (Eliminasi):**")
+st.write("🔍 **Filter Posisi (Eliminasi 1):**")
 auto_jump_js() # Panggil fungsi di sini
 c_as, c_kop, c_kep, c_ekor = st.columns(4)
 f_as = c_as.text_input("As", max_chars=1)
 f_kop = c_kop.text_input("Kop", max_chars=1)
 f_kep = c_kep.text_input("Kepala", max_chars=1)
 f_ekor = c_ekor.text_input("Ekor", max_chars=1)
-
+st.write("🔍 **Filter Posisi (Eliminasi 2):**")
+auto_jump_js() # Panggil fungsi di sini
+c_as2, c_kop2, c_kep2, c_ekor2 = st.columns(4)
+f_as2 = c_as2.text_input("As 2", max_chars=1)
+f_kop2 = c_kop2.text_input("Kop 2", max_chars=1)
+f_kep2 = c_kep2.text_input("Kepala 2", max_chars=1)
+f_ekor2 = c_ekor2.text_input("Ekor 2", max_chars=1)
 tombol_proses = st.button("🚀 PROSES SEKARANG")
 
 # --- AMBIL DATA ---
@@ -223,7 +237,12 @@ if tombol_proses and input_bbfs:
     # 1. Proses 4D
     if show_4d:
         a4, b4, p4 = get_kombinasi(input_bbfs, 4, data_ada)
-        
+        # Cek apakah filter 2 diisi
+        if f_as2 or f_kop2 or f_kep2 or f_ekor2:
+            # Gabungkan filter lama dan baru
+            f_as_all, f_kop_all, f_kep_all, f_ekor_all = f_as+f_as2, f_kop+f_kop2, f_kep+f_kep2, f_ekor+f_ekor2
+            a4_final = [a for a in a4 if not is_tereliminasi_v2(a, f_as_all, f_kop_all, f_kep_all, f_ekor_all)]
+        else:
         # Saring hasil
         a4_final = [a for a in a4 if not is_tereliminasi(a, f_as, f_kop, f_kep, f_ekor)]
         
@@ -295,3 +314,4 @@ if show_twin and 'gudang_twin' in st.session_state:
     if st.session_state.gudang_panas:
         st.error(f"🔥 DATA PANAS DITEMUKAN: {len(st.session_state.gudang_panas)} Line")
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
+
