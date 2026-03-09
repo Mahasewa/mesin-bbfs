@@ -10,16 +10,19 @@ def auto_jump_js():
     js_code = """
     <script>
         const inputs = window.parent.document.querySelectorAll('input[type="text"]');
-        // Hanya ambil 4 input filter pertama (As, Kop, Kep, Ekor)
-        const filterInputs = Array.from(inputs).slice(-4); 
-        filterInputs.forEach((input, index) => {
+        // Kita ambil 8 input terakhir (4 filter posisi 1 + 4 filter posisi 2)
+        const allFilterInputs = Array.from(inputs).slice(-8); 
+        
+        allFilterInputs.forEach((input, index) => {
             input.addEventListener('input', (e) => {
-                if (e.target.value.length === 1 && index < filterInputs.length - 1) {
-                    filterInputs[index + 1].focus();
+                if (e.target.value.length === 1 && index < allFilterInputs.length - 1) {
+                    allFilterInputs[index + 1].focus();
                 }
             });
         });
     </script>
+    """
+    components.html(js_code, height=0)
     """
     components.html(js_code, height=0)
 
@@ -314,5 +317,6 @@ if show_twin and 'gudang_twin' in st.session_state:
     if st.session_state.gudang_panas:
         st.error(f"🔥 DATA PANAS DITEMUKAN: {len(st.session_state.gudang_panas)} Line")
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
+
 
 
