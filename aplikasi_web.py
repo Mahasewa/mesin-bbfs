@@ -9,14 +9,12 @@ import streamlit.components.v1 as components
 def auto_jump_js():
     js_code = """
     <script>
-        const inputs = window.parent.document.querySelectorAll('input[type="text"]');
-        // Kita ambil 8 input terakhir (4 filter posisi 1 + 4 filter posisi 2)
-        const allFilterInputs = Array.from(inputs).slice(-8); 
-        
-        allFilterInputs.forEach((input, index) => {
+        // Mengambil semua input teks di halaman agar otomatis terhubung
+        const inputs = Array.from(window.parent.document.querySelectorAll('input[type="text"]'));
+        inputs.forEach((input, index) => {
             input.addEventListener('input', (e) => {
-                if (e.target.value.length === 1 && index < allFilterInputs.length - 1) {
-                    allFilterInputs[index + 1].focus();
+                if (e.target.value.length === 1 && index < inputs.length - 1) {
+                    inputs[index + 1].focus();
                 }
             });
         });
@@ -190,19 +188,24 @@ show_quad = k3.checkbox("Quad Saja", value=False)
 
 input_bbfs = st.text_input("🎲 Masukkan Angka BBFS:", placeholder="Contoh: 12345", max_chars=10)
 
-st.write("🔍 **Filter Posisi (Eliminasi 1):**")
-auto_jump_js() # Panggil fungsi di sini
-c_as, c_kop, c_kep, c_ekor = st.columns(4)
-f_as = c_as.text_input("As", max_chars=1)
-f_kop = c_kop.text_input("Kop", max_chars=1)
-f_kep = c_kep.text_input("Kepala", max_chars=1)
-f_ekor = c_ekor.text_input("Ekor", max_chars=1)
-st.write("🔍 **Filter Posisi (Eliminasi 2):**")
-c_as2, c_kop2, c_kep2, c_ekor2 = st.columns(4)
-f_as2 = c_as2.text_input("As 2", max_chars=1)
-f_kop2 = c_kop2.text_input("Kop 2", max_chars=1)
-f_kep2 = c_kep2.text_input("Kepala 2", max_chars=1)
-f_ekor2 = c_ekor2.text_input("Ekor 2", max_chars=1)
+st.write("🔍 **Filter Posisi (Eliminasi 1 s/d 3):**")
+
+# Simpan semua input ke dalam list
+f_as_list = []
+f_kop_list = []
+f_kep_list = []
+f_ekor_list = []
+
+# Loop untuk membuat 3 baris input (range 3)
+for i in range(3):
+    c_as, c_kop, c_kep, c_ekor = st.columns(4)
+    f_as_list.append(c_as.text_input(f"As {i+1}", max_chars=1, key=f"as_{i}"))
+    f_kop_list.append(c_kop.text_input(f"Kop {i+1}", max_chars=1, key=f"kop_{i}"))
+    f_kep_list.append(c_kep.text_input(f"Kep {i+1}", max_chars=1, key=f"kep_{i}"))
+    f_ekor_list.append(c_ekor.text_input(f"Ekor {i+1}", max_chars=1, key=f"ekor_{i}"))
+
+# Panggil fungsi auto-jump sekali saja di sini
+auto_jump_js()
 tombol_proses = st.button("🚀 PROSES SEKARANG")
 
 # --- AMBIL DATA ---
@@ -232,19 +235,21 @@ def cetak_hasil_blok(label, daftar_angka):
             
 # --- EKSEKUSI ---
 if tombol_proses and input_bbfs:
+    # 1. GABUNGKAN SEMUA LIST FILTER DI SINI (Ini yang dimaksud "di atas")
+    f_as_all = "".join(f_as_list)
+    f_kop_all = "".join(f_kop_list)
+    f_kep_all = "".join(f_kep_list)
+    f_ekor_all = "".join(f_ekor_list)
     data_hasil = []
     
     # 1. Proses 4D
     if show_4d:
         a4, b4, p4 = get_kombinasi(input_bbfs, 4, data_ada)
-        # Cek apakah filter 2 diisi
-        if f_as2 or f_kop2 or f_kep2 or f_ekor2:
-            # Gabungkan filter lama dan baru
-            f_as_all, f_kop_all, f_kep_all, f_ekor_all = f_as+f_as2, f_kop+f_kop2, f_kep+f_kep2, f_ekor+f_ekor2
+        # Gunakan variabel hasil gabungan tadi
+        if f_as_all or f_kop_all or f_kep_all or f_ekor_all:
             a4_final = [a for a in a4 if not is_tereliminasi_v2(a, f_as_all, f_kop_all, f_kep_all, f_ekor_all)]
         else:
-        # Saring hasil
-            a4_final = [a for a in a4 if not is_tereliminasi(a, f_as, f_kop, f_kep, f_ekor)]
+            a4_final = [a for a in a4 if not is_tereliminasi(a, "", "", "", "")]
         
         # PENTING: Gunakan a4_final di bawah sini, BUKAN a4
         if a4_final: 
@@ -261,15 +266,11 @@ if tombol_proses and input_bbfs:
 # 2. Proses 3D
     if show_3d:
             a3, b3, p3 = get_kombinasi(input_bbfs, 3, data_ada_3d)
-            # Cek apakah filter 2 diisi
-            if f_as2 or f_kop2 or f_kep2 or f_ekor2:
-                f_as_all = f_as + f_as2
-                f_kop_all = f_kop + f_kop2
-                f_kep_all = f_kep + f_kep2
-                f_ekor_all = f_ekor + f_ekor2
+            # Gunakan variabel gabungan f_..._all yang sudah didefinisikan di awal eksekusi
+            if f_as_all or f_kop_all or f_kep_all or f_ekor_all:
                 a3_final = [a for a in a3 if not is_tereliminasi_v2(a, f_as_all, f_kop_all, f_kep_all, f_ekor_all)]
             else:
-                a3_final = [a for a in a3 if not is_tereliminasi(a, f_as, f_kop, f_kep, f_ekor)]
+                a3_final = [a for a in a3 if not is_tereliminasi(a, "", "", "", "")]
             
             if a3_final:
                 st.subheader(f"📊 HASIL 3D ACAK ({len(a3_final)} Line)")
@@ -302,14 +303,11 @@ if tombol_proses and input_bbfs:
 # 4. Proses Kembar (Strict)
     aman_twin, panas_twin = get_kembar_strict_v2(input_bbfs, 2, data_ada)
     # Cek apakah filter 2 diisi
-    if f_as2 or f_kop2 or f_kep2 or f_ekor2:
-        f_as_all = f_as + f_as2
-        f_kop_all = f_kop + f_kop2
-        f_kep_all = f_kep + f_kep2
-        f_ekor_all = f_ekor + f_ekor2
+    # Gunakan variabel gabungan f_..._all
+    if f_as_all or f_kop_all or f_kep_all or f_ekor_all:
         aman_twin_final = [a for a in aman_twin if not is_tereliminasi_v2(a, f_as_all, f_kop_all, f_kep_all, f_ekor_all)]
     else:
-        aman_twin_final = [a for a in aman_twin if not is_tereliminasi(a, f_as, f_kop, f_kep, f_ekor)]
+        aman_twin_final = [a for a in aman_twin if not is_tereliminasi(a, "", "", "", "")]
         
  # Simpan hasil hitungan ke Koper (Gudang) agar tidak hilang
     st.session_state.gudang_twin = kelompokkan_twin(aman_twin_final)
@@ -329,5 +327,6 @@ if show_twin and 'gudang_twin' in st.session_state:
     if st.session_state.gudang_panas:
         st.error(f"🔥 DATA PANAS DITEMUKAN: {len(st.session_state.gudang_panas)} Line")
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
+
 
 
