@@ -23,8 +23,6 @@ def auto_jump_js():
     </script>
     """
     components.html(js_code, height=0)
-    """
-    components.html(js_code, height=0)
 
 def is_berurutan(angka):
     try:
@@ -316,7 +314,3 @@ if show_twin and 'gudang_twin' in st.session_state:
     if st.session_state.gudang_panas:
         st.error(f"🔥 DATA PANAS DITEMUKAN: {len(st.session_state.gudang_panas)} Line")
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
-
-
-
-
