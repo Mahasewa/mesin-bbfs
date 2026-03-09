@@ -253,27 +253,26 @@ if tombol_proses and input_bbfs:
     # ----------------------------------------------
  
  # 4. Proses Kembar (Strict)
-    # GANTI DENGAN INI:
     if show_twin:
         import tampilan_twin as tt
-    
-        # 1. Tetap hitung datanya di sini
+        
+        # 1. Hitung data
         aman_twin, panas_twin = get_kembar_strict_v2(input_bbfs, 2, data_ada)
         aman_twin_final = [a for a in aman_twin if not is_tereliminasi(a, f_as, f_kop, f_kep, f_ekor)]
-    
-        # 2. Kelompokkan datanya
-        data_kelompok = kelompokkan_twin(aman_twin_final)
-    
-        # 3. Panggil modul baru untuk tampilan interaktif
-        tt.proses_pilihan_twin(data_kelompok)
-    
-        # 4. Tampilkan panas_twin (tetap muncul sebagai info)
-    if panas_twin:
-        st.error(f"🔥 DATA PANAS DITEMUKAN: {len(panas_twin)} Line")
+        
+        # 2. Masukkan ke dalam Koper (Session State)
+        st.session_state.gudang_twin = kelompokkan_twin(aman_twin_final)
+        
+        # 3. Panggil fungsi dari file baru
+        tt.proses_pilihan_twin(st.session_state.gudang_twin)
+        
+        if panas_twin:
+            st.error(f"🔥 DATA PANAS DITEMUKAN: {len(panas_twin)} Line")
 
 elif tombol_proses and not input_bbfs:
     st.error("Isi angkanya dulu Koh!")
 
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
+
 
 
