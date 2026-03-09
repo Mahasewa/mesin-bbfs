@@ -253,12 +253,12 @@ if tombol_proses and input_bbfs:
     # ----------------------------------------------
  
 # 4. Proses Kembar (Strict)
-        aman_twin, panas_twin = get_kembar_strict_v2(input_bbfs, 2, data_ada)
-        aman_twin_final = [a for a in aman_twin if not is_tereliminasi(a, f_as, f_kop, f_kep, f_ekor)]
+    aman_twin, panas_twin = get_kembar_strict_v2(input_bbfs, 2, data_ada)
+    aman_twin_final = [a for a in aman_twin if not is_tereliminasi(a, f_as, f_kop, f_kep, f_ekor)]
         
-        # Simpan hasil hitungan ke Koper (Gudang) agar tidak hilang
-        st.session_state.gudang_twin = kelompokkan_twin(aman_twin_final)
-        st.session_state.gudang_panas = panas_twin
+ # Simpan hasil hitungan ke Koper (Gudang) agar tidak hilang
+    st.session_state.gudang_twin = kelompokkan_twin(aman_twin_final)
+    st.session_state.gudang_panas = panas_twin
     
 elif tombol_proses and not input_bbfs:
     st.error("Isi angkanya dulu Koh!")
@@ -272,6 +272,7 @@ if show_twin and 'gudang_twin' in st.session_state:
     if st.session_state.gudang_panas:
         st.error(f"🔥 DATA PANAS DITEMUKAN: {len(st.session_state.gudang_panas)} Line")
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
+
 
 
 
