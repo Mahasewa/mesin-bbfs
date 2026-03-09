@@ -94,7 +94,13 @@ def is_tereliminasi(angka, f_as, f_kop, f_kep, f_ekor):
     # Jika semua filter kosong, jangan eliminasi apa pun
     if not (f_as or f_kop or f_kep or f_ekor):
         return False
-    
+def is_tereliminasi_manual(kombinasi, filter_manual):
+    # filter_manual berisi data dari session_state: {as, kop, kep, ekor}
+    for pos, angka in enumerate(kombinasi):
+        # Jika kotak filter tidak kosong dan angkanya sama dengan kombinasi, eliminasi!
+        if filter_manual[pos] and str(filter_manual[pos]) == str(angka):
+            return True
+    return False    
     # --- LOGIKA UNTUK 4D ---
     if len(angka) == 4:
         if f_as and angka[0] == f_as: return True
@@ -280,7 +286,20 @@ if tombol_proses and input_bbfs:
  # Simpan hasil hitungan ke Koper (Gudang) agar tidak hilang
     st.session_state.gudang_twin = kelompokkan_twin(aman_twin_final)
     st.session_state.gudang_panas = panas_twin
-    
+  # Kumpulkan data dari filter manual 1 dan 2
+filter_1 = [st.session_state.as1, st.session_state.kop1, st.session_state.kep1, st.session_state.ekor1]
+filter_2 = [st.session_state.as2, st.session_state.kop2, st.session_state.kep2, st.session_state.ekor2]
+
+# Proses eliminasi
+aman_twin_final = []
+    for a in aman_twin:
+    # 1. Cek eliminasi sistem lama (historis + default)
+    if not is_tereliminasi(a, f_as, f_kop, f_kep, f_ekor):
+        # 2. Cek filter manual 1
+        if not is_tereliminasi_manual(a, filter_1):
+            # 3. Cek filter manual 2
+            if not is_tereliminasi_manual(a, filter_2):
+                aman_twin_final.append(a) 
 elif tombol_proses and not input_bbfs:
     st.error("Isi angkanya dulu Koh!")
 if 'layar1_simpan' in st.session_state:
@@ -295,6 +314,7 @@ if show_twin and 'gudang_twin' in st.session_state:
     if st.session_state.gudang_panas:
         st.error(f"🔥 DATA PANAS DITEMUKAN: {len(st.session_state.gudang_panas)} Line")
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
+
 
 
 
