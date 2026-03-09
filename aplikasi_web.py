@@ -289,17 +289,14 @@ if tombol_proses and input_bbfs:
   # Kumpulkan data dari filter manual 1 dan 2
 filter_1 = [st.session_state.as1, st.session_state.kop1, st.session_state.kep1, st.session_state.ekor1]
 filter_2 = [st.session_state.as2, st.session_state.kop2, st.session_state.kep2, st.session_state.ekor2]
+# (Mentok kiri/Sejajar dengan filter_1)
+aman_twin_final = [] 
+    for a in aman_twin:           # 1 Tab
+        if not is_tereliminasi(...):   # 2 Tab
+            if not is_tereliminasi_manual(...):  # 3 Tab
+                if not is_tereliminasi_manual(...):  # 4 Tab
+                    aman_twin_final.append(a)      # 5 Tab
 
-# Proses eliminasi
-aman_twin_final = []
-    for a in aman_twin:
-        # 1. Cek eliminasi sistem lama (historis + default)
-        if not is_tereliminasi(a, f_as, f_kop, f_kep, f_ekor):
-            # 2. Cek filter manual 1
-            if not is_tereliminasi_manual(a, filter_1):
-                # 3. Cek filter manual 2
-                if not is_tereliminasi_manual(a, filter_2):
-                    aman_twin_final.append(a) 
 elif tombol_proses and not input_bbfs:
     st.error("Isi angkanya dulu Koh!")
 if 'layar1_simpan' in st.session_state:
@@ -314,6 +311,7 @@ if show_twin and 'gudang_twin' in st.session_state:
     if st.session_state.gudang_panas:
         st.error(f"🔥 DATA PANAS DITEMUKAN: {len(st.session_state.gudang_panas)} Line")
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
+
 
 
 
