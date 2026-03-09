@@ -261,7 +261,14 @@ if tombol_proses and input_bbfs:
 # 2. Proses 3D
     if show_3d:
             a3, b3, p3 = get_kombinasi(input_bbfs, 3, data_ada_3d)
-            
+            # Cek apakah filter 2 diisi
+            if f_as2 or f_kop2 or f_kep2 or f_ekor2:
+                f_as_all = f_as + f_as2
+                f_kop_all = f_kop + f_kop2
+                f_kep_all = f_kep + f_kep2
+                f_ekor_all = f_ekor + f_ekor2
+                a3_final = [a for a in a3 if not is_tereliminasi_v2(a, f_as_all, f_kop_all, f_kep_all, f_ekor_all)]
+        else:
             a3_final = [a for a in a3 if not is_tereliminasi(a, f_as, f_kop, f_kep, f_ekor)]
             
             if a3_final:
@@ -294,7 +301,15 @@ if tombol_proses and input_bbfs:
     st.session_state.layar2_simpan = a4_final
 # 4. Proses Kembar (Strict)
     aman_twin, panas_twin = get_kembar_strict_v2(input_bbfs, 2, data_ada)
-    aman_twin_final = [a for a in aman_twin if not is_tereliminasi(a, f_as, f_kop, f_kep, f_ekor)]
+    # Cek apakah filter 2 diisi
+    if f_as2 or f_kop2 or f_kep2 or f_ekor2:
+        f_as_all = f_as + f_as2
+        f_kop_all = f_kop + f_kop2
+        f_kep_all = f_kep + f_kep2
+        f_ekor_all = f_ekor + f_ekor2
+        aman_twin_final = [a for a in aman_twin if not is_tereliminasi_v2(a, f_as_all, f_kop_all, f_kep_all, f_ekor_all)]
+    else:
+        aman_twin_final = [a for a in aman_twin if not is_tereliminasi(a, f_as, f_kop, f_kep, f_ekor)]
         
  # Simpan hasil hitungan ke Koper (Gudang) agar tidak hilang
     st.session_state.gudang_twin = kelompokkan_twin(aman_twin_final)
@@ -314,3 +329,4 @@ if show_twin and 'gudang_twin' in st.session_state:
     if st.session_state.gudang_panas:
         st.error(f"🔥 DATA PANAS DITEMUKAN: {len(st.session_state.gudang_panas)} Line")
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
+
