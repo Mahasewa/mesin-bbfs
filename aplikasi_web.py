@@ -252,27 +252,27 @@ if tombol_proses and input_bbfs:
     th.tampilkan_hasil_tab(data_hasil, a4_final) # Asumsi a4_final sudah terdefinisi di atas
     # ----------------------------------------------
  
- # 4. Proses Kembar (Strict)
-    if show_twin:
-        import tampilan_twin as tt
-        
-        # 1. Hitung data
+# 4. Proses Kembar (Strict)
         aman_twin, panas_twin = get_kembar_strict_v2(input_bbfs, 2, data_ada)
         aman_twin_final = [a for a in aman_twin if not is_tereliminasi(a, f_as, f_kop, f_kep, f_ekor)]
         
-        # 2. Masukkan ke dalam Koper (Session State)
+        # Simpan hasil hitungan ke Koper (Gudang) agar tidak hilang
         st.session_state.gudang_twin = kelompokkan_twin(aman_twin_final)
-        
-        # 3. Panggil fungsi dari file baru
-        tt.proses_pilihan_twin(st.session_state.gudang_twin)
-        
-        if panas_twin:
-            st.error(f"🔥 DATA PANAS DITEMUKAN: {len(panas_twin)} Line")
-
+        st.session_state.gudang_panas = panas_twin
+    
 elif tombol_proses and not input_bbfs:
     st.error("Isi angkanya dulu Koh!")
-
+    
+if show_twin and 'gudang_twin' in st.session_state:
+    import tampilan_twin as tt
+    # Tampilkan daftar pola dari koper (tidak akan keriset saat klik ceklis)
+    tt.proses_pilihan_twin(st.session_state.gudang_twin)
+    
+    # Tampilkan info data panas jika ada
+    if st.session_state.gudang_panas:
+        st.error(f"🔥 DATA PANAS DITEMUKAN: {len(st.session_state.gudang_panas)} Line")
 st.markdown("<p style='text-align: center; font-size: 0.8rem; color: #888;'>© 2026 Mahasewa BBFS Digital Team</p>", unsafe_allow_html=True)
+
 
 
 
